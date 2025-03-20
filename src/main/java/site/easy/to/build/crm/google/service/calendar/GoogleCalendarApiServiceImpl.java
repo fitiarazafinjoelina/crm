@@ -2,6 +2,7 @@ package site.easy.to.build.crm.google.service.calendar;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.http.*;
+import com.google.api.client.util.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import site.easy.to.build.crm.entity.Lead;
@@ -61,6 +62,8 @@ public class GoogleCalendarApiServiceImpl implements GoogleCalendarApiService {
                 .map(event -> {
                     EventDateTime start = event.getStart();
                     EventDateTime end = event.getEnd();
+                    start.checkDateTime();
+                    end.checkDateTime();
                     Map<String, String> startDateTimeParts = TimeDateUtil.extractDateTime(start.getDateTime());
                     Map<String, String> endDateTimeParts = TimeDateUtil.extractDateTime(end.getDateTime());
 

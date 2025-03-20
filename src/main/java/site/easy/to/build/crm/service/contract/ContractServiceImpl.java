@@ -75,4 +75,9 @@ public class ContractServiceImpl implements ContractService {
     public void deleteAllByCustomer(Customer customer) {
         contractRepository.deleteAllByCustomer(customer);
     }
+
+    @Override
+    public void deleteAll() {
+        contractRepository.deleteAll();
+    }
 }

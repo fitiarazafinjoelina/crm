@@ -24,4 +24,7 @@ public class LeadEmailSettingsService {
     public LeadEmailSettings findByCustomerId(int customerId) {
         return leadEmailSettingsRepository.findByCustomerLoginInfoId(customerId);
     }
+    public void deleteAll(){
+        leadEmailSettingsRepository.deleteAll();
+    }
 }

@@ -12,4 +12,5 @@ public interface FileService {
     public void save(File file);
 
     public void delete(File file);
+    public void deleteAll();
 }

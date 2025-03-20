@@ -231,6 +231,7 @@ public class  GoogleDriveApiServiceImpl implements GoogleDriveApiService {
         Gson gson = new Gson();
         JsonObject jsonResponse = gson.fromJson(respondBody, JsonObject.class);
         JsonArray filesArray = jsonResponse.getAsJsonArray("files");
+        System.out.println(filesArray.toString());
 
         Type fileListType = new TypeToken<List<GoogleDriveFolder>>() {}.getType();
 

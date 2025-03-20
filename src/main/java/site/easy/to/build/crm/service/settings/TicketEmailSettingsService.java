@@ -24,4 +24,7 @@ public class TicketEmailSettingsService {
     public TicketEmailSettings findByCustomerId(int customerId) {
         return ticketEmailSettingsRepository.findByCustomerLoginInfoId(customerId);
     }
+    public void deleteAll(){
+        ticketEmailSettingsRepository.deleteAll();
+    }
 }

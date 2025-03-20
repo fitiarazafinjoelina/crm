@@ -24,4 +24,7 @@ public class ContractEmailSettingsService {
     public ContractEmailSettings findByCustomerId(int customerId) {
         return contractEmailSettingsRepository.findByCustomerLoginInfoId(customerId);
     }
+    public void deleteAll(){
+        contractEmailSettingsRepository.deleteAll();
+    }
 }

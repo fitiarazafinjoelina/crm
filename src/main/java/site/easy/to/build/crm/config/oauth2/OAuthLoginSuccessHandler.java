@@ -107,7 +107,6 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
             oAuthUserService.save(oAuthUser);
             response.sendRedirect("/connect-accounts");
         } else {
-
             String email = ((DefaultOidcUser) authentication.getPrincipal()).getEmail();
             String img = ((DefaultOidcUser) authentication.getPrincipal()).getPicture();
             String firstName = ((DefaultOidcUser) authentication.getPrincipal()).getGivenName();
