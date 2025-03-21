@@ -34,4 +34,9 @@ public class FileServiceImpl implements FileService {
     public void delete(File file) {
         fileRepository.delete(file);
     }
+
+    @Override
+    public void deleteAll() {
+        fileRepository.deleteAll();
+    }
 }

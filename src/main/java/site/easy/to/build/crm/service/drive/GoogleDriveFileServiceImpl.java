@@ -37,4 +37,9 @@ public class GoogleDriveFileServiceImpl implements GoogleDriveFileService {
             googleDriveFileRepository.deleteById(id);
         }
     }
+
+    @Override
+    public void deleteAll() {
+        googleDriveFileRepository.deleteAll();
+    }
 }

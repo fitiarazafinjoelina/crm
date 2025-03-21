@@ -37,4 +37,8 @@ public class CustomerLoginInfoServiceImpl implements CustomerLoginInfoService {
     public void delete(CustomerLoginInfo customerLoginInfo) {
         customerLoginInfoRepository.delete(customerLoginInfo);
     }
+    @Override
+    public void deleteAll(){
+        customerLoginInfoRepository.deleteAll();
+    }
 }

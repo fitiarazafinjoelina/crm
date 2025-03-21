@@ -17,4 +17,10 @@ public class LeadActionServiceImpl implements LeadActionService{
     public void save(LeadAction leadAction) {
         leadActionRepository.save(leadAction);
     }
+
+    @Override
+    public void deleteAll() {
+        leadActionRepository.deleteAll();
+    }
+
 }

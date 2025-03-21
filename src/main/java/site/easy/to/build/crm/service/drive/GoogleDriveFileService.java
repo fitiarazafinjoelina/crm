@@ -13,4 +13,5 @@ public interface GoogleDriveFileService {
     public void save(GoogleDriveFile googleDriveFile);
 
     public void delete(int id);
+    public void deleteAll();
 }

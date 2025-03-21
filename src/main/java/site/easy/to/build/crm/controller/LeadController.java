@@ -211,7 +211,7 @@ public class LeadController {
         Lead createdLead = leadService.save(lead);
         fileUtil.saveFiles(allFiles, createdLead);
 
-        if (lead.getGoogleDrive() != null) {
+        if (lead.getGoogleDrive() != null && folderId != null) {
             fileUtil.saveGoogleDriveFiles(authentication, allFiles, folderId, createdLead);
         }
 

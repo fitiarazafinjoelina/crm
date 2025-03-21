@@ -70,6 +70,11 @@ public class LeadServiceImpl implements LeadService {
     }
 
     @Override
+    public void deleteAll() {
+        leadRepository.deleteAll();
+    }
+
+    @Override
     public List<Lead> getRecentLeads(int managerId, int limit) {
         Pageable pageable = PageRequest.of(0, limit);
         return leadRepository.findByManagerIdOrderByCreatedAtDesc(managerId, pageable);

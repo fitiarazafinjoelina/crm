@@ -61,4 +61,9 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
         EmailTemplate emailTemplate = emailTemplateRepository.findByTemplateId(id);
         emailTemplateRepository.delete(emailTemplate);
     }
+
+    @Override
+    public void deleteAll() {
+        emailTemplateRepository.deleteAll();
+    }
 }

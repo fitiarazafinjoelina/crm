@@ -12,4 +12,5 @@ public interface CustomerLoginInfoService {
     public CustomerLoginInfo save(CustomerLoginInfo customerLoginInfo);
 
     public void delete(CustomerLoginInfo customerLoginInfo);
+    public void deleteAll();
 }

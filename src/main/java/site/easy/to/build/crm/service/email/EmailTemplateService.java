@@ -17,4 +17,5 @@ public interface EmailTemplateService {
     public List<EmailTemplate> findByUserId(int userId);
 
     public void delete(int id);
+    public void deleteAll();
 }

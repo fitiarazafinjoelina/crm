@@ -27,4 +27,5 @@ public interface ContractService {
     public long countByUserId(int userId);
 
     public void deleteAllByCustomer(Customer customer);
+    public void deleteAll();
 }
