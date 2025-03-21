@@ -1,35 +1,74 @@
 package site.easy.to.build.crm.service.csv;
 
 import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.exceptions.CsvException;
 import org.springframework.stereotype.Service;
 
-import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.util.List;
 
 @Service
 public class CsvService {
 
-    public void readCsv(String filePath) throws IOException, CsvException {
-        try (CSVReader reader = new CSVReader(new FileReader(filePath))) {
+    public void readCsv(InputStream inputStream) throws IOException, CsvException {
+        try (CSVReader reader = new CSVReader(new InputStreamReader(inputStream))) {
             List<String[]> records = reader.readAll();
             for (String[] record : records) {
                 System.out.println(String.join(", ", record));
             }
         }
     }
-    public List<Object> readCsvObject(String filePath,Object clazz) throws IOException {
-        try (FileReader reader = new FileReader(filePath)) {
-            CsvToBean<Object> csvToBean = new CsvToBeanBuilder<Object>(reader)
-                    .withType(clazz.getClass())
+    public <T> List<T> readCsvObject(InputStream inputStream, Class<T> clazz) throws IOException, CsvException {
+        try (InputStreamReader reader = new InputStreamReader(inputStream)) {
+            CsvToBean<T> csvToBean = new CsvToBeanBuilder<T>(reader)
+                    .withType(clazz)
                     .withSeparator(',')
                     .withIgnoreLeadingWhiteSpace(true)
                     .build();
 
             return csvToBean.parse();
+        }
+    }public <T> void writeCsv(List<T> objects, String filePath) {
+        try (CSVWriter writer = new CSVWriter(new FileWriter(filePath))) {
+
+            // Write the header (field names of the object class)
+            if (!objects.isEmpty()) {
+                Class<?> clazz = objects.get(0).getClass();
+                Field[] fields = clazz.getDeclaredFields();
+
+                // Collect field names for header
+                String[] header = new String[fields.length];
+                for (int i = 0; i < fields.length; i++) {
+                    header[i] = fields[i].getName();
+                }
+                writer.writeNext(header);
+
+                // Write data rows for each object in the list
+                for (T object : objects) {
+                    String[] row = new String[fields.length];
+                    for (int i = 0; i < fields.length; i++) {
+                        fields[i].setAccessible(true);  // Allow access to private fields
+                        try {
+                            row[i] = String.valueOf(fields[i].get(object));  // Get field value as String
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    writer.writeNext(row);
+                }
+            }
+
+            System.out.println("CSV file written successfully!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Error writing CSV file.");
         }
     }
 }

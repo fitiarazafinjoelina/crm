@@ -55,6 +55,7 @@ public class SecurityConfig {
 
         http.csrf((csrf) -> csrf
                 .csrfTokenRepository(httpSessionCsrfTokenRepository)
+                //.ignoringRequestMatchers("/csv/upload")
         );
 
         http.
@@ -69,6 +70,7 @@ public class SecurityConfig {
                         .requestMatchers("/save").permitAll()
                         .requestMatchers("/js/**").permitAll()
                         .requestMatchers("/css/**").permitAll()
+                        .requestMatchers("/csv/upload").permitAll()
                         .requestMatchers(AntPathRequestMatcher.antMatcher("/**/manager/**")).hasRole("MANAGER")
                         .requestMatchers("/employee/**").hasAnyRole("MANAGER", "EMPLOYEE")
                         .requestMatchers("/customer/**").hasRole("CUSTOMER")
@@ -116,7 +118,7 @@ public class SecurityConfig {
                 .csrfTokenRepository(httpSessionCsrfTokenRepository)
         );
 
-        http.securityMatcher("/customer-login/**").
+        http.securityMatcher("/set-password/**","/customer-login/**").
                 authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/set-password/**").permitAll()
                         .requestMatchers("/font-awesome/**").permitAll()

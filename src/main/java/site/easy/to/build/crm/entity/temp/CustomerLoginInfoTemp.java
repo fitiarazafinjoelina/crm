@@ -1,14 +1,13 @@
-package site.easy.to.build.crm.entity;
+package site.easy.to.build.crm.entity.temp;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvBindByPosition;
 import jakarta.persistence.*;
-import site.easy.to.build.crm.entity.temp.CustomerLoginInfoTemp;
 
 @Entity
-@Table(name = "customer_login_info")
-public class CustomerLoginInfo {
+@Table(name = "customer_login_info_temp")
+public class CustomerLoginInfoTemp implements CsvClass {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,39 +15,46 @@ public class CustomerLoginInfo {
     private Integer id;
 
     @Column(name = "username")
+    @CsvBindByName
     private String username;
 
     @Column(name = "password")
+    @CsvBindByName
     private String password;
 
     @Column(name = "token")
+    @CsvBindByName
     private String token;
 
     @Column(name = "password_set")
+    @CsvBindByName
     private Boolean passwordSet;
 
-    @OneToOne(mappedBy = "customerLoginInfo", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("customerLoginInfo")
-    @PrimaryKeyJoinColumn
-    private Customer customer;
-
-
-    public CustomerLoginInfo() {
+    public String getTempTableName(){
+        return "customer_login_info_temp";
+    }
+    public String getTempTable(){
+        return "create temporary table if not exists customer_login_info_temp\n" +
+                "(\n" +
+                "    id           int auto_increment\n" +
+                "        primary key,\n" +
+                "    password     varchar(255)         null,\n" +
+                "    username     varchar(255)         null,\n" +
+                "    token        varchar(500)         null,\n" +
+                "    password_set tinyint(1) default 0 null,\n" +
+                "    constraint token\n" +
+                "        unique (token)\n" +
+                ");";
     }
 
-    public CustomerLoginInfo(String username, String password, String token, Boolean passwordSet, Customer customer) {
+    public CustomerLoginInfoTemp() {
+    }
+
+    public CustomerLoginInfoTemp(String username, String password, String token, Boolean passwordSet) {
         this.username = username;
         this.password = password;
         this.token = token;
         this.passwordSet = passwordSet;
-        this.customer = customer;
-    }
-
-    public CustomerLoginInfo(CustomerLoginInfoTemp customerLoginInfoTemp) {
-        setUsername(customerLoginInfoTemp.getUsername());
-        setPassword(customerLoginInfoTemp.getPassword());
-        setToken(customerLoginInfoTemp.getToken());
-        setPasswordSet(customerLoginInfoTemp.getPasswordSet());
     }
 
     public Integer getId() {
@@ -81,14 +87,6 @@ public class CustomerLoginInfo {
 
     public void setPasswordSet(Boolean passwordSet) {
         this.passwordSet = passwordSet;
-    }
-
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
     }
 
     public String getEmail() {
