@@ -38,19 +38,18 @@ public class CsvService {
     }public <T> void writeCsv(List<T> objects, String filePath) {
         try (CSVWriter writer = new CSVWriter(new FileWriter(filePath))) {
 
-            // Write the header (field names of the object class)
+
             if (!objects.isEmpty()) {
                 Class<?> clazz = objects.get(0).getClass();
                 Field[] fields = clazz.getDeclaredFields();
 
-                // Collect field names for header
                 String[] header = new String[fields.length];
                 for (int i = 0; i < fields.length; i++) {
                     header[i] = fields[i].getName();
                 }
                 writer.writeNext(header);
 
-                // Write data rows for each object in the list
+
                 for (T object : objects) {
                     String[] row = new String[fields.length];
                     for (int i = 0; i < fields.length; i++) {

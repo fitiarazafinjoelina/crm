@@ -19,7 +19,7 @@ import java.util.Set;
 public class CsvDataService<T, R> {
 
     @Autowired
-    private CsvService csvService;  // Service for reading CSV data into entity objects
+    private CsvService csvService;
 
     @PersistenceContext
     private EntityManager entityManager;

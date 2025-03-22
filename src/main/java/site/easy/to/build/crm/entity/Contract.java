@@ -21,7 +21,6 @@ public class Contract {
 
     @Column(name = "subject")
     @NotBlank(message = "Subject is required")
-    //@CsvBindByName //to bind to csv
     private String subject;
 
     @Column(name = "status")
