@@ -74,36 +74,25 @@
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
-                            <h4 class="card-title">Leads</h4>
+                            <h4 class="card-title">Budgets</h4>
                             <div class="table-responsive m-t-40">
                                 <table id="config-table" class="table display table-bordered table-striped no-wrap">
                                     <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Lead</th>
-                                        <th>phone</th>
-                                        <th>Status</th>
-                                        <th>Amount</th>
                                         <th>Customer</th>
-                                        <th>Assigned Employee</th>
-                                        <th>Show</th>
-                                        <th>Edit</th>
-                                        <th>Delete</th>
+                                        <th>Amount</th>
+                                        <th>Date Created</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr th:if="${leads != null}" th:each="lead : ${leads}">
-                                        <td th:text="${lead.leadId}"></td>
-                                        <td th:text="${lead.name}"></td>
-                                        <td th:text="${lead.phone}"></td>
-                                        <td th:text="${lead.status}"></td>
-                                        <td th:text="${lead.amount}"></td>
-                                        <td th:text="${lead.customer.name}"></td>
-                                        <td th:text="${lead.employee.username}"></td>
-                                        <td><a th:href="${home + 'employee/lead/show/' + lead.leadId}"><i class="fas fa-eye"></i></a></td>
-                                        <td><a th:href="${home + 'employee/lead/update/' + lead.leadId}"><i class="fas fa-edit"></i></a></td>
+                                    <tr th:if="${budgets != null}" th:each="budget : ${budgets}">
+                                        <td th:text="${budget.budgetId}"></td>
+                                        <td th:text="${budget.customer.name}"></td>
+                                        <td th:text="${budget.amount}"></td>
+                                        <td th:text="${budget.createdAt}"></td>
                                         <td>
-                                            <form th:action="${home + 'employee/lead/delete/' + lead.leadId}" method="post">
+                                            <form th:action="${home + 'employee/budget/delete-budget/' + budget.budgetId}" method="post">
                                                 <button type="submit" class="btn btn-primary">
                                                     <i class="mdi mdi-delete"></i>
                                                 </button>

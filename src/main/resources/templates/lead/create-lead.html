@@ -71,6 +71,32 @@
                     <div class="card">
                         <div class="card-body">
                             <h4 class="card-title">Create New Lead</h4>
+                            <div th:if="${alert != null}">
+                                <div class="input-group">
+                                    <span class="text-danger font-weight-bold">
+                                        The amount has reached the alert rate!
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="alertModalLabel">Budget surpassed</h5>
+                                        </div>
+                                        <div class="modal-body">
+                                            The budget will be reached!
+                                        </div>
+                                        <div class="modal-footer">
+                                            <form th:action="@{/employee/lead/validate-lead}" method="post">
+                                                <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary">Proceed</button>
+                                            </form>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <form th:object="${lead}" th:action="@{/employee/lead/create}" enctype="multipart/form-data" id="email-form" method="post">
                                 <input type="hidden" id="allFiles" name="allFiles">
                                 <label class="m-t-20" for="name">Name:</label>
@@ -115,6 +141,13 @@
                                     <select name="customerId" id="customerId" class="form-control">
                                         <option th:each="customer : ${customers}" th:text="${customer.name}" th:value="${customer.customerId}"></option>
                                     </select>
+                                </div>
+                                <label class="m-t-20" for="amount">Amount:</label>
+                                <div class="input-group">
+                                    <input type="number" step="0.01" id="amount" th:field="*{amount}" class="form-control">
+                                </div>
+                                <div class="input-group">
+                                    <span class="text-danger font-weight-bold" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></span>
                                 </div>
                                 <label class="m-t-20"><i class="ti-link"></i> Attachment</label>
                                 <div class="form-group">
@@ -232,5 +265,19 @@
 </script>
 <script th:src="@{/js/general-dropzone.js}" type="text/javascript"
         th:data-csrf-token="${_csrf.token}" th:data-csrf-header="${_csrf.headerName}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Check if 'surpass' attribute is set in the model
+        var surpass = [[${surpass}]]; // Default to false if `surpass` is null or not found
+
+
+        if (surpass) {
+            var myModal = new bootstrap.Modal(document.getElementById('alertModal'), {
+                keyboard: false
+            });
+            myModal.show();
+        }
+    });
+</script>
 </body>
 </html>

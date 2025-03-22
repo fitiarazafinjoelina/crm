@@ -3,10 +3,12 @@ package site.easy.to.build.crm.service.lead;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import site.easy.to.build.crm.entity.Customer;
+import site.easy.to.build.crm.entity.*;
 import site.easy.to.build.crm.repository.LeadRepository;
-import site.easy.to.build.crm.entity.Lead;
+import site.easy.to.build.crm.service.budget.BudgetService;
+import site.easy.to.build.crm.service.ticket.TicketService;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -98,5 +100,15 @@ public class LeadServiceImpl implements LeadService {
     @Override
     public long countByCustomerId(int customerId) {
         return leadRepository.countByCustomerCustomerId(customerId);
+    }
+
+    @Override
+    public BigDecimal getTotalAmountLeads(int customerId) {
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        List<Lead> tickets = getCustomerLeads(customerId);
+        for (Lead ticket : tickets) {
+            totalAmount = totalAmount.add(ticket.getAmount());
+        }
+        return totalAmount;
     }
 }

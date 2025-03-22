@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
@@ -25,6 +26,7 @@ import site.easy.to.build.crm.google.service.acess.GoogleAccessService;
 import site.easy.to.build.crm.google.service.calendar.GoogleCalendarApiService;
 import site.easy.to.build.crm.google.service.drive.GoogleDriveApiService;
 import site.easy.to.build.crm.google.service.gmail.GoogleGmailApiService;
+import site.easy.to.build.crm.service.alertRate.AlertRateService;
 import site.easy.to.build.crm.service.customer.CustomerService;
 import site.easy.to.build.crm.service.drive.GoogleDriveFileService;
 import site.easy.to.build.crm.service.file.FileService;
@@ -60,12 +62,13 @@ public class LeadController {
     private final LeadEmailSettingsService leadEmailSettingsService;
     private final GoogleGmailApiService googleGmailApiService;
     private final EntityManager entityManager;
+    private final AlertRateService alertRateService;
 
     @Autowired
     public LeadController(LeadService leadService, AuthenticationUtils authenticationUtils, UserService userService, CustomerService customerService,
                           LeadActionService leadActionService, GoogleCalendarApiService googleCalendarApiService, FileService fileService,
                           GoogleDriveApiService googleDriveApiService, GoogleDriveFileService googleDriveFileService, FileUtil fileUtil,
-                          LeadEmailSettingsService leadEmailSettingsService, GoogleGmailApiService googleGmailApiService, EntityManager entityManager) {
+                          LeadEmailSettingsService leadEmailSettingsService, GoogleGmailApiService googleGmailApiService, EntityManager entityManager,AlertRateService alertRateService) {
         this.leadService = leadService;
         this.authenticationUtils = authenticationUtils;
         this.userService = userService;
@@ -79,6 +82,7 @@ public class LeadController {
         this.leadEmailSettingsService = leadEmailSettingsService;
         this.googleGmailApiService = googleGmailApiService;
         this.entityManager = entityManager;
+        this.alertRateService = alertRateService;
     }
 
     @GetMapping("/show/{id}")
@@ -163,12 +167,22 @@ public class LeadController {
         model.addAttribute("lead", new Lead());
         return "lead/create-lead";
     }
+    @PostMapping("validate-lead")
+    public String validateLead(HttpSession session) {
+        Lead lead = (Lead) session.getAttribute("surpassLead");
 
+        if (lead != null) {
+            leadService.save(lead);
+            session.removeAttribute("surpassLead");
+        }
+
+        return "redirect:/employee/lead/assigned-leads";
+    }
     @PostMapping("/create")
     public String createLead(@ModelAttribute("lead") @Validated Lead lead, BindingResult bindingResult,
                              @RequestParam("customerId") int customerId, @RequestParam("employeeId") int employeeId,
                              Authentication authentication, @RequestParam("allFiles")@Nullable String files,
-                             @RequestParam("folderId") @Nullable String folderId, Model model) throws JsonProcessingException {
+                             @RequestParam("folderId") @Nullable String folderId, Model model,HttpSession session) throws JsonProcessingException {
 
         int userId = authenticationUtils.getLoggedInUserId(authentication);
         User manager = userService.findById(userId);
@@ -215,6 +229,18 @@ public class LeadController {
             fileUtil.saveGoogleDriveFiles(authentication, allFiles, folderId, createdLead);
         }
 
+        AlertRate alertRate = alertRateService.getAllAlertRates().get(0);
+        if(alertRateService.checkDepasse(customerId,lead)){
+            System.out.println("hihih");
+            session.setAttribute("surpassLead",lead);
+            model.addAttribute("surpass",true);
+            return "lead/create-lead";
+        }
+        else if(alertRateService.checkAlert(customerId,lead,alertRate)) {
+            System.out.println("hihon");
+            model.addAttribute("alert",true);
+            return "lead/create-lead";
+        }
         if (lead.getStatus().equals("meeting-to-schedule")) {
             return "redirect:/employee/calendar/create-event?leadId=" + lead.getLeadId();
         }
