@@ -1,5 +1,6 @@
 package site.easy.to.build.crm.entity;
 
+import com.opencsv.bean.CsvBindByName;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import site.easy.to.build.crm.customValidations.FutureDate;

@@ -232,6 +232,20 @@
                         </div>
                         <div class="card-body">
                             <a href="/cleanup" class="btn btn-primary m-t-20">Clean Up</a>
+
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                                <h2 class="text-primary text-center mb-4">Import Data</h2>
+                                <form class="form-group" th:action="@{/csv/uploadCustomerLogInfo}" method="POST" enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <label for="file" class="text-primary">Select CSV File</label>
+                                        <input class="form-control-file" type="file" name="file" id="file" required>
+                                    </div>
+                                    <input type="hidden" name="csrf" th:value="${_csrf.token}"/>
+                                    <button type="submit" class="btn btn-cyan btn-block mt-3">Import Data</button>
+                                </form>
                         </div>
                     </div>
                 </div>

@@ -55,6 +55,7 @@ public class SecurityConfig {
 
         http.csrf((csrf) -> csrf
                 .csrfTokenRepository(httpSessionCsrfTokenRepository)
+                //.ignoringRequestMatchers("/csv/upload")
         );
 
         http.
@@ -116,7 +117,7 @@ public class SecurityConfig {
                 .csrfTokenRepository(httpSessionCsrfTokenRepository)
         );
 
-        http.securityMatcher("/customer-login/**").
+        http.securityMatcher("/set-password/**","/customer-login/**").
                 authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/set-password/**").permitAll()
                         .requestMatchers("/font-awesome/**").permitAll()
