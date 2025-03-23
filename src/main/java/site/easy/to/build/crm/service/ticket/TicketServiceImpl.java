@@ -3,13 +3,10 @@ package site.easy.to.build.crm.service.ticket;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import site.easy.to.build.crm.entity.AlertRate;
-import site.easy.to.build.crm.entity.Budget;
-import site.easy.to.build.crm.entity.Customer;
+import site.easy.to.build.crm.entity.*;
 import site.easy.to.build.crm.repository.BudgetRepository;
 import site.easy.to.build.crm.repository.CustomerRepository;
 import site.easy.to.build.crm.repository.TicketRepository;
-import site.easy.to.build.crm.entity.Ticket;
 import site.easy.to.build.crm.service.budget.BudgetService;
 import site.easy.to.build.crm.service.lead.LeadService;
 
@@ -110,6 +107,15 @@ public class TicketServiceImpl implements TicketService{
             totalAmount = totalAmount.add(ticket.getAmount());
         }
         return totalAmount;
+    }
+    @Override
+    public Ticket updateTicket(int id, Ticket updatedTicket) {
+        if (!ticketRepository.existsById(id)) {
+            return null;  // Return null if the ticket does not exist
+        }
+
+        updatedTicket.setTicketId(id);
+        return ticketRepository.save(updatedTicket);  // Save the updated ticket
     }
 
 }

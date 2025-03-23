@@ -78,6 +78,9 @@
                                     </span>
                                 </div>
                             </div>
+                            <div th:if="${surpass !=null}">
+                                <h1>hellooo</h1>
+                            </div>
                             <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
@@ -88,8 +91,8 @@
                                             The budget will be reached!
                                         </div>
                                         <div class="modal-footer">
+                                            <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                             <form th:action="@{/employee/lead/validate-lead}" method="post">
-                                                <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                                 <button type="submit" class="btn btn-primary">Proceed</button>
                                             </form>
 
@@ -276,6 +279,12 @@
                 keyboard: false
             });
             myModal.show();
+            const closeButton = document.querySelector('[data-bs-dismiss="modal"]');
+            if (closeButton) {
+                closeButton.addEventListener('click', function() {
+                    myModal.hide();
+                });
+            }
         }
     });
 </script>

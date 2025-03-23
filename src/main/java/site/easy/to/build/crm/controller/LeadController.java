@@ -170,7 +170,6 @@ public class LeadController {
     @PostMapping("validate-lead")
     public String validateLead(HttpSession session) {
         Lead lead = (Lead) session.getAttribute("surpassLead");
-
         if (lead != null) {
             leadService.save(lead);
             session.removeAttribute("surpassLead");
@@ -178,6 +177,8 @@ public class LeadController {
 
         return "redirect:/employee/lead/assigned-leads";
     }
+
+
     @PostMapping("/create")
     public String createLead(@ModelAttribute("lead") @Validated Lead lead, BindingResult bindingResult,
                              @RequestParam("customerId") int customerId, @RequestParam("employeeId") int employeeId,
@@ -221,25 +222,22 @@ public class LeadController {
                 return "error/500";
             }
         }
-
-        Lead createdLead = leadService.save(lead);
-        fileUtil.saveFiles(allFiles, createdLead);
-
-        if (lead.getGoogleDrive() != null && folderId != null) {
-            fileUtil.saveGoogleDriveFiles(authentication, allFiles, folderId, createdLead);
-        }
-
         AlertRate alertRate = alertRateService.getAllAlertRates().get(0);
         if(alertRateService.checkDepasse(customerId,lead)){
-            System.out.println("hihih");
             session.setAttribute("surpassLead",lead);
             model.addAttribute("surpass",true);
             return "lead/create-lead";
         }
         else if(alertRateService.checkAlert(customerId,lead,alertRate)) {
-            System.out.println("hihon");
+            Lead createdLead = leadService.save(lead);
             model.addAttribute("alert",true);
             return "lead/create-lead";
+        }
+        Lead createdLead = leadService.save(lead);
+        fileUtil.saveFiles(allFiles, createdLead);
+
+        if (lead.getGoogleDrive() != null && folderId != null) {
+            fileUtil.saveGoogleDriveFiles(authentication, allFiles, folderId, createdLead);
         }
         if (lead.getStatus().equals("meeting-to-schedule")) {
             return "redirect:/employee/calendar/create-event?leadId=" + lead.getLeadId();

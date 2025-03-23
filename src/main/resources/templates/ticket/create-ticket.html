@@ -87,8 +87,8 @@
                                             The budget will be reached!
                                         </div>
                                         <div class="modal-footer">
+                                            <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                             <form th:action="@{/employee/ticket/validate-ticket}" method="post">
-                                                <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                                 <button type="submit" class="btn btn-primary">Proceed</button>
                                             </form>
 
@@ -247,6 +247,12 @@
                 keyboard: false
             });
             myModal.show();
+            const closeButton = document.querySelector('[data-bs-dismiss="modal"]');
+            if (closeButton) {
+                closeButton.addEventListener('click', function() {
+                    myModal.hide();
+                });
+            }
         }
     });
 </script>

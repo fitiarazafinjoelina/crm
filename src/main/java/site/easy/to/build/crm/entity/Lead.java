@@ -69,7 +69,6 @@ public class Lead {
 
     public Lead() {
     }
-
     public Lead(String name, String status, String phone, String meetingId, Boolean googleDrive, String googleDriveFolderId,
                 List<LeadAction> leadActions, List<File> files, List<GoogleDriveFile> googleDriveFiles, User manager, User employee,
                 Customer customer, LocalDateTime createdAt,BigDecimal amount) {

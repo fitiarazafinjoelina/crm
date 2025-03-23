@@ -1,13 +1,16 @@
 package site.easy.to.build.crm.service.alertRate;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.validation.ValidationException;
 import site.easy.to.build.crm.entity.AlertRate;
+import site.easy.to.build.crm.entity.Customer;
 import site.easy.to.build.crm.entity.Lead;
 import site.easy.to.build.crm.entity.Ticket;
 import site.easy.to.build.crm.repository.AlertRateRepository;
 import site.easy.to.build.crm.service.budget.BudgetService;
+import site.easy.to.build.crm.service.customer.CustomerService;
 import site.easy.to.build.crm.service.lead.LeadService;
 import site.easy.to.build.crm.service.ticket.TicketService;
 
@@ -26,6 +29,8 @@ public class AlertRateService {
     private TicketService ticketService;
     @Autowired
     private BudgetService budgetService;
+    @Autowired
+    private CustomerService customerService;
 
     public List<AlertRate> getAllAlertRates() {
         return alertRateRepository.findAll();
@@ -44,6 +49,12 @@ public class AlertRateService {
     }
     public void deleteAlertRate(Long id) {
         alertRateRepository.deleteById(id);
+    }
+    public void deleteAll() {
+        alertRateRepository.deleteAll();
+    }
+    public void updateAlertRate(AlertRate alertRate) {
+        alertRateRepository.save(alertRate);
     }
     public boolean checkAlert(int customerId, Lead lead, AlertRate alertRate) {
         System.out.println("holo");
@@ -80,5 +91,14 @@ public class AlertRateService {
         totalAmount = totalAmount.add(totalLeadAmount);
         BigDecimal totalBudget = budgetService.getTotalAmountBudget(customerId);
         return totalAmount.add(ticket.getAmount()).compareTo(totalBudget) > 0;
+    }
+    public BigDecimal getTotalAmountSpendings(){
+        List<Customer> customers = customerService.findAll();
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        for (Customer customer : customers) {
+            totalAmount = totalAmount.add(leadService.getTotalAmountLeads(customer.getCustomerId()));
+            totalAmount = totalAmount.add(ticketService.getTotalAmountTickets(customer.getCustomerId()));
+        }
+        return totalAmount;
     }
 }

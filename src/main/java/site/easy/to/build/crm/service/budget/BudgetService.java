@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import site.easy.to.build.crm.entity.Customer;
 import site.easy.to.build.crm.entity.Budget;
 import site.easy.to.build.crm.repository.BudgetRepository;
+import site.easy.to.build.crm.service.customer.CustomerService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -15,6 +16,8 @@ public class BudgetService {
 
     @Autowired
     private BudgetRepository budgetRepository;
+    @Autowired
+    private CustomerService customerService;
 
     public Budget findByBudgetId(Long id) {
         return budgetRepository.findByBudgetId(id);
@@ -64,6 +67,14 @@ public class BudgetService {
         List<Budget> budgets = findByCustomerCustomerId(customerId);
         for (Budget budget : budgets) {
             totalAmount = totalAmount.add(budget.getAmount());
+        }
+        return totalAmount;
+    }
+    public BigDecimal getTotalAmountBudget() {
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        List<Customer> customers = customerService.findAll();
+        for (Customer customer : customers) {
+            totalAmount = totalAmount.add(getTotalAmountBudget(customer.getCustomerId()));
         }
         return totalAmount;
     }

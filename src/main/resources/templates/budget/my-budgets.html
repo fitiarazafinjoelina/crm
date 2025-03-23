@@ -89,7 +89,9 @@
                                     <tr th:if="${budgets != null}" th:each="budget : ${budgets}">
                                         <td th:text="${budget.budgetId}"></td>
                                         <td th:text="${budget.customer.name}"></td>
-                                        <td th:text="${budget.amount}"></td>
+                                        <td th:text="${budget.amount}"
+                                            th:class="${budget.amount > 100} ? 'text-danger' : 'text-success'"></td>
+                                        <td th:text="${budget.createdAt}"></td>
                                         <td th:text="${budget.createdAt}"></td>
                                         <td>
                                             <form th:action="${home + 'employee/budget/delete-budget/' + budget.budgetId}" method="post">

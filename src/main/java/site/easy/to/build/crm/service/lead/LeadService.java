@@ -33,4 +33,6 @@ public interface LeadService {
     public void deleteAllByCustomer(Customer customer);
     public void deleteAll();
     public BigDecimal getTotalAmountLeads(int customerId);
+    public Lead updateLead(int id, Lead updatedLead);
+
 }

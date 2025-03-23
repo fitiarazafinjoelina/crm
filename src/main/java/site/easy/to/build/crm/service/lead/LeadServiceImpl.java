@@ -111,4 +111,13 @@ public class LeadServiceImpl implements LeadService {
         }
         return totalAmount;
     }
+    @Override
+    public Lead updateLead(int id, Lead updatedLead) {
+        if (!leadRepository.existsById(id)) {
+            return null;  // Return null if the lead does not exist
+        }
+
+        updatedLead.setLeadId(id);
+        return leadRepository.save(updatedLead);  // Save the updated lead
+    }
 }

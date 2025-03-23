@@ -1,5 +1,6 @@
 package site.easy.to.build.crm.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.DecimalMax;
@@ -13,6 +14,7 @@ public class AlertRate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonProperty("Percentage")
     @NotNull(message = "Percentage cannot be null")
     @DecimalMin(value = "0.00", message = "Percentage must be at least 0")
     @DecimalMax(value = "100.00", message = "Percentage cannot exceed 100")

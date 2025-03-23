@@ -38,4 +38,5 @@ public interface TicketService {
     void deleteAllByCustomer(Customer customer);
     public void deleteAll();
     public BigDecimal getTotalAmountTickets(int customerId);
+    public Ticket updateTicket(int id, Ticket updatedTicket);
 }
