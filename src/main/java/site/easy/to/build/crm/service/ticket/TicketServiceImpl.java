@@ -3,17 +3,20 @@ package site.easy.to.build.crm.service.ticket;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import site.easy.to.build.crm.entity.Customer;
+import site.easy.to.build.crm.entity.*;
+import site.easy.to.build.crm.repository.BudgetRepository;
+import site.easy.to.build.crm.repository.CustomerRepository;
 import site.easy.to.build.crm.repository.TicketRepository;
-import site.easy.to.build.crm.entity.Ticket;
+import site.easy.to.build.crm.service.budget.BudgetService;
+import site.easy.to.build.crm.service.lead.LeadService;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
 public class TicketServiceImpl implements TicketService{
 
     private final TicketRepository ticketRepository;
-
     public TicketServiceImpl(TicketRepository ticketRepository) {
         this.ticketRepository = ticketRepository;
     }
@@ -95,4 +98,24 @@ public class TicketServiceImpl implements TicketService{
     public void deleteAll() {
         ticketRepository.deleteAll();
     }
+
+    @Override
+    public BigDecimal getTotalAmountTickets(int customerId) {
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        List<Ticket> tickets = findCustomerTickets(customerId);
+        for (Ticket ticket : tickets) {
+            totalAmount = totalAmount.add(ticket.getAmount());
+        }
+        return totalAmount;
+    }
+    @Override
+    public Ticket updateTicket(int id, Ticket updatedTicket) {
+        if (!ticketRepository.existsById(id)) {
+            return null;  // Return null if the ticket does not exist
+        }
+
+        updatedTicket.setTicketId(id);
+        return ticketRepository.save(updatedTicket);  // Save the updated ticket
+    }
+
 }

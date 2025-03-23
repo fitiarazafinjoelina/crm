@@ -1,6 +1,7 @@
 package site.easy.to.build.crm.controller;
 
 import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
@@ -15,6 +16,7 @@ import site.easy.to.build.crm.entity.*;
 import site.easy.to.build.crm.entity.settings.TicketEmailSettings;
 import site.easy.to.build.crm.google.service.acess.GoogleAccessService;
 import site.easy.to.build.crm.google.service.gmail.GoogleGmailApiService;
+import site.easy.to.build.crm.service.alertRate.AlertRateService;
 import site.easy.to.build.crm.service.customer.CustomerService;
 import site.easy.to.build.crm.service.settings.TicketEmailSettingsService;
 import site.easy.to.build.crm.service.ticket.TicketService;
@@ -41,11 +43,12 @@ public class TicketController {
     private final TicketEmailSettingsService ticketEmailSettingsService;
     private final GoogleGmailApiService googleGmailApiService;
     private final EntityManager entityManager;
+    private final AlertRateService alertRateService;
 
 
     @Autowired
     public TicketController(TicketService ticketService, AuthenticationUtils authenticationUtils, UserService userService, CustomerService customerService,
-                            TicketEmailSettingsService ticketEmailSettingsService, GoogleGmailApiService googleGmailApiService, EntityManager entityManager) {
+                            TicketEmailSettingsService ticketEmailSettingsService, GoogleGmailApiService googleGmailApiService, EntityManager entityManager,AlertRateService alertRateService) {
         this.ticketService = ticketService;
         this.authenticationUtils = authenticationUtils;
         this.userService = userService;
@@ -53,6 +56,7 @@ public class TicketController {
         this.ticketEmailSettingsService = ticketEmailSettingsService;
         this.googleGmailApiService = googleGmailApiService;
         this.entityManager = entityManager;
+        this.alertRateService = alertRateService;
     }
 
     @GetMapping("/show-ticket/{id}")
@@ -121,11 +125,23 @@ public class TicketController {
         model.addAttribute("ticket", new Ticket());
         return "ticket/create-ticket";
     }
+    @PostMapping("validate-ticket")
+    public String validateTicket(HttpSession session) {
+        Ticket ticket = (Ticket) session.getAttribute("surpassTicket");
+
+        if (ticket != null) {
+            ticketService.save(ticket);
+            session.removeAttribute("surpassTicket");
+        }
+
+        return "redirect:/employee/ticket/assigned-tickets";
+    }
+
 
     @PostMapping("/create-ticket")
     public String createTicket(@ModelAttribute("ticket") @Validated Ticket ticket, BindingResult bindingResult, @RequestParam("customerId") int customerId,
                                @RequestParam Map<String, String> formParams, Model model,
-                               @RequestParam("employeeId") int employeeId, Authentication authentication) {
+                               @RequestParam("employeeId") int employeeId, Authentication authentication, HttpSession session) {
 
         int userId = authenticationUtils.getLoggedInUserId(authentication);
         User manager = userService.findById(userId);
@@ -169,8 +185,20 @@ public class TicketController {
         ticket.setEmployee(employee);
         ticket.setCreatedAt(LocalDateTime.now());
 
+        AlertRate alertRate = alertRateService.getAllAlertRates().get(0);
+        if(alertRateService.checkDepasse(customerId,ticket)){
+            System.out.println("hihih");
+            session.setAttribute("surpassTicket",ticket);
+            model.addAttribute("surpass",true);
+            return "ticket/create-ticket";
+        }
+        else if(alertRateService.checkAlert(customerId,ticket,alertRate)) {
+            ticketService.save(ticket);
+            System.out.println("hihon");
+            model.addAttribute("alert",true);
+            return "ticket/create-ticket";
+        }
         ticketService.save(ticket);
-
         return "redirect:/employee/ticket/assigned-tickets";
     }
 

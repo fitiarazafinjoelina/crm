@@ -70,6 +70,34 @@
                     <div class="card">
                         <div class="card-body">
                             <h4 class="card-title">Create New Ticket</h4>
+                            <div th:if="${alert != null}">
+                                <div class="input-group">
+                                    <span class="text-danger font-weight-bold">
+                                        The amount has reached the alert rate!
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="alertModalLabel">Budget surpassed</h5>
+                                        </div>
+                                        <div class="modal-body">
+                                            The budget will be reached!
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <form th:action="@{/employee/ticket/validate-ticket}" method="post">
+                                                <button type="submit" class="btn btn-primary">Proceed</button>
+                                            </form>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
                             <form th:object="${ticket}" th:action="@{/employee/ticket/create-ticket}" method="post">
 
                                 <label class="m-t-20" for="subject">Subject:</label>
@@ -135,7 +163,13 @@
                                         <option th:each="customer : ${customers}" th:text="${customer.name}" th:value="${customer.customerId}"></option>
                                     </select>
                                 </div>
-
+                                <label class="m-t-20" for="amount">Amount:</label>
+                                <div class="input-group">
+                                    <input type="number" step="0.01" id="amount" th:field="*{amount}" class="form-control">
+                                </div>
+                                <div class="input-group">
+                                    <span class="text-danger font-weight-bold" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></span>
+                                </div>
                                 <button type="submit" class="btn btn-primary m-t-20">Create ticket</button>
                             </form>
                         </div>
@@ -202,6 +236,27 @@
         $('.textarea_editor').wysihtml5();
     });
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Check if 'surpass' attribute is set in the model
+        var surpass = [[${surpass}]]; // Default to false if `surpass` is null or not found
+
+
+        if (surpass) {
+            var myModal = new bootstrap.Modal(document.getElementById('alertModal'), {
+                keyboard: false
+            });
+            myModal.show();
+            const closeButton = document.querySelector('[data-bs-dismiss="modal"]');
+            if (closeButton) {
+                closeButton.addEventListener('click', function() {
+                    myModal.hide();
+                });
+            }
+        }
+    });
+</script>
+
 
 </body>
 </html>
