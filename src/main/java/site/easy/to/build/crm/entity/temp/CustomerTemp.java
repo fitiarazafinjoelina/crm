@@ -1,20 +1,24 @@
-package site.easy.to.build.crm.entity;
+package site.easy.to.build.crm.entity.temp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvDate;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.groups.Default;
 import site.easy.to.build.crm.customValidations.customer.UniqueEmail;
-import site.easy.to.build.crm.entity.temp.CustomerTemp;
-
+import site.easy.to.build.crm.entity.Customer;
+import site.easy.to.build.crm.entity.CustomerLoginInfo;
+import site.easy.to.build.crm.entity.Lead;
+import site.easy.to.build.crm.entity.User;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
-@Table(name = "customer")
-public class Customer {
-
+@Table(name="customer_temp")
+public class CustomerTemp  implements CsvClass {
     public interface CustomerUpdateValidationGroupInclusion {}
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,64 +26,104 @@ public class Customer {
     private Integer customerId;
 
     @Column(name = "name")
-    @NotBlank(message = "Name is required", groups = {Default.class, CustomerUpdateValidationGroupInclusion.class})
+    @CsvBindByName(column = "name")
+    @NotBlank(message = "Name is required", groups = {Default.class, Customer.CustomerUpdateValidationGroupInclusion.class})
     private String name;
 
     @Column(name = "email")
+    @CsvBindByName(column = "email")
     @NotBlank(message = "Email is required")
     @Email(message = "Please enter a valid email format")
     @UniqueEmail
     private String email;
 
     @Column(name = "position")
+    @CsvBindByName(column = "position")
     private String position;
 
     @Column(name = "phone")
+    @CsvBindByName(column = "phone")
     private String phone;
 
     @Column(name = "address")
+    @CsvBindByName(column = "address")
     private String address;
 
     @Column(name = "city")
+    @CsvBindByName(column = "city")
     private String city;
 
     @Column(name = "state")
+    @CsvBindByName(column = "state")
     private String state;
 
     @Column(name = "country")
-    @NotBlank(message = "Country is required", groups = {Default.class, CustomerUpdateValidationGroupInclusion.class})
+    @CsvBindByName(column = "country")
+    @NotBlank(message = "Country is required", groups = {Default.class, Customer.CustomerUpdateValidationGroupInclusion.class})
     private String country;
 
     @Column(name = "description")
+    @CsvBindByName(column = "description")
     private String description;
 
     @Column(name = "twitter")
+    @CsvBindByName(column = "twitter")
     private String twitter;
 
     @Column(name = "facebook")
+    @CsvBindByName(column = "facebook")
     private String facebook;
 
     @Column(name = "youtube")
+    @CsvBindByName(column = "youtube")
     private String youtube;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable=false)
-    @JsonIgnoreProperties("customer")
-    private User user;
+    @CsvBindByName(column = "user_id")
+    private Integer userId;
 
-    @OneToOne
-    @JoinColumn(name = "profile_id")
-    @JsonIgnore
-    private CustomerLoginInfo customerLoginInfo;
+    @CsvBindByName(column = "profile_id")
+    private Integer profileId;
+
 
     @Column(name = "created_at")
+    @CsvDate(value = "yyyy-MM-dd HH:mm:ss")
+    @CsvBindByName(column = "created_at")
     private LocalDateTime createdAt;
 
-    public Customer() {
+    public String getTempTableName(){
+        return "customer_temp";
+    }
+    public String getTempTable(){
+        return "create temporary table customer_temp\n" +
+                "(\n" +
+                "    customer_id int unsigned auto_increment\n" +
+                "        primary key,\n" +
+                "    name        varchar(255) null,\n" +
+                "    phone       varchar(20)  null,\n" +
+                "    address     varchar(255) null,\n" +
+                "    city        varchar(255) null,\n" +
+                "    state       varchar(255) null,\n" +
+                "    country     varchar(255) null,\n" +
+                "    user_id     int          null,\n" +
+                "    description text         null,\n" +
+                "    position    varchar(255) null,\n" +
+                "    twitter     varchar(255) null,\n" +
+                "    facebook    varchar(255) null,\n" +
+                "    youtube     varchar(255) null,\n" +
+                "    created_at  datetime     null,\n" +
+                "    email       varchar(255) null,\n" +
+                "    profile_id  int          null\n" +
+                ")";
+    }
+    @Override
+    public boolean isValid() {
+        return email!=null && !email.isEmpty();
+    }
+    public CustomerTemp() {
     }
 
-    public Customer(String name, String email, String position, String phone, String address, String city, String state, String country,
-                    String description, String twitter, String facebook, String youtube, User user, CustomerLoginInfo customerLoginInfo,
+    public CustomerTemp(String name, String email, String position, String phone, String address, String city, String state, String country,
+                    String description, String twitter, String facebook, String youtube, Integer userId, Integer profileId,
                     LocalDateTime createdAt) {
         this.name = name;
         this.email = email;
@@ -93,8 +137,8 @@ public class Customer {
         this.twitter = twitter;
         this.facebook = facebook;
         this.youtube = youtube;
-        this.user = user;
-        this.customerLoginInfo = customerLoginInfo;
+        this.userId = userId;
+        this.profileId = profileId;
         this.createdAt = createdAt;
     }
 
@@ -202,20 +246,20 @@ public class Customer {
         this.youtube = youtube;
     }
 
-    public User getUser() {
-        return user;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
-    public CustomerLoginInfo getCustomerLoginInfo() {
-        return customerLoginInfo;
+    public Integer getProfileId() {
+        return profileId;
     }
 
-    public void setCustomerLoginInfo(CustomerLoginInfo customerLoginInfo) {
-        this.customerLoginInfo = customerLoginInfo;
+    public void setProfileId(Integer profileId) {
+        this.profileId = profileId;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -226,17 +270,18 @@ public class Customer {
         this.createdAt = createdAt;
     }
 
-//    public List<Ticket> getTickets() {
-//        return tickets;
-//    }
-//
-//    public void addTicket(Ticket ticket) {
-//        this.tickets.add(ticket);
-//    }
-//    public void deleteTicket(Ticket ticket) {
-//        this.tickets.remove(ticket);
-//    }
-//    public void setTickets(List<Ticket> tickets) {
-//        this.tickets = tickets;
-//    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CustomerTemp customer = (CustomerTemp) o;
+        return customer.getEmail().compareTo(email) == 0 &&
+                Objects.equals(name, customer.getName()) &&
+                Objects.equals(address, customer.getAddress());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, email, address);
+    }
 }

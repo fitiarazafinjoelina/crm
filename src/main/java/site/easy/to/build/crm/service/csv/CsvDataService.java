@@ -1,93 +1,124 @@
 package site.easy.to.build.crm.service.csv;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import site.easy.to.build.crm.entity.temp.CsvClass;
+import org.springframework.web.multipart.MultipartFile;
+import site.easy.to.build.crm.entity.User;
+import site.easy.to.build.crm.entity.csvImport.BudgetImport;
+import site.easy.to.build.crm.entity.csvImport.CustomerImport;
+import site.easy.to.build.crm.entity.csvImport.TicketLeadImport;
+import site.easy.to.build.crm.entity.exceptions.CsvException;
+import site.easy.to.build.crm.entity.temp.*;
+import site.easy.to.build.crm.service.budget.BudgetService;
+import site.easy.to.build.crm.service.csvImport.BudgetImportService;
+import site.easy.to.build.crm.service.csvImport.CustomerImportService;
+import site.easy.to.build.crm.service.csvImport.TicketLeadImportService;
+import site.easy.to.build.crm.service.customer.CustomerService;
+import site.easy.to.build.crm.service.lead.LeadService;
+import site.easy.to.build.crm.service.ticket.TicketService;
+import site.easy.to.build.crm.service.user.UserService;
+import site.easy.to.build.crm.util.AuthenticationUtils;
 
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Service
-public class CsvDataService<T, R> {
+public class CsvDataService {
 
     @Autowired
     private CsvService csvService;
+    @Autowired
+    private CsvDataServiceB csvDataService;
+    @Autowired
+    private CustomerService customerService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private AuthenticationUtils authenticationUtils;
+    @Autowired
+    private CustomerImportService customerImportService;
+    @Autowired
+    private TicketLeadImportService ticketLeadImportService;
+    @Autowired
+    private TicketService ticketService;
+    @Autowired
+    private LeadService leadService;
+    @Autowired
+    private BudgetImportService budgetImportService;
+    @Autowired
+    private BudgetService budgetService;
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    @Transactional(rollbackFor = CsvException.class)
+    public void processCsvFiles(User loggedInUser, MultipartFile customerFile, MultipartFile budgetFile, MultipartFile ticketLeadFile) throws CsvException {
+        Set<String> exceptions = new HashSet<>();
 
-    @Transactional(rollbackFor = SQLException.class)
-    public <E extends CsvClass, M> List<E> persistCsvData(InputStream inputStream, Class<E> entityClass, Class<M> mainClass) throws SQLException {
-        E entityInstance = createEntityInstance(entityClass);
+        try{
+            List<CustomerImport> customerImports = csvService.readCsvObject(customerFile.getInputStream(), CustomerImport.class);
+            customerImportService.saveAll(customerImports, exceptions, customerFile.getName());
+            try {
+                List<CustomerTemp> customers = customerService.toCustomers(loggedInUser, customerImports);
+                csvDataService.saveCsvData(customers, CustomerPersist.class, customerFile.getName()); // This is part of the same transaction
+            } catch (CsvException e) {
+                e.printStackTrace();
+                exceptions.addAll(e.getCauses());
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
 
-        String tempTable = entityInstance.getTempTable();
-        String tempTableName = entityInstance.getTempTableName();
+        // Handle Budget Import
+        try{
+            List<BudgetImport> budgets = csvService.readCsvObject(budgetFile.getInputStream(), BudgetImport.class);
+            budgetImportService.saveAll(budgets, exceptions, budgetFile.getName());
 
+            try {
+                List<BudgetTemp> temps = budgetService.toBudgets(loggedInUser, budgets);
+                csvDataService.saveCsvData(temps, BudgetPersist.class, budgetFile.getName()); // This is part of the same transaction
+            } catch (CsvException e) {
+                e.printStackTrace();
+                exceptions.addAll(e.getCauses());
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+        // Handle TicketLead Import
         try {
-            entityManager.createNativeQuery(tempTable).executeUpdate();
+            List<TicketLeadImport> ticketLeadImports = csvService.readCsvObject(ticketLeadFile.getInputStream(), TicketLeadImport.class);
+            ticketLeadImportService.saveAll(ticketLeadImports, exceptions, ticketLeadFile.getName());
 
-            List<E> list = readCsvData(inputStream, entityClass);
-            Set<E> set = new HashSet<>(list); //to remove doublons
+            if(exceptions.isEmpty()){
+                try {
+                    List<TicketTemp> tickets = ticketService.toTickets(loggedInUser, ticketLeadImports);
+                    csvDataService.saveCsvData(tickets, TicketPersist.class, ticketLeadFile.getName()); // This is part of the same transaction
+                } catch (CsvException e) {
+                    e.printStackTrace();
+                    exceptions.addAll(e.getCauses());
+                }
 
-            for (E entity : list) { //soloina set eto raha manala doublons
-                M mainEntity = mainClass.getDeclaredConstructor().newInstance();
-                saveEntity(entity, mainEntity);
+                try {
+                    List<LeadTemp> leads = leadService.toLeads(loggedInUser, ticketLeadImports);
+                    csvDataService.saveCsvData(leads, LeadPersist.class, ticketLeadFile.getName()); // This is part of the same transaction
+                } catch (CsvException e) {
+                    e.printStackTrace();
+                    exceptions.addAll(e.getCauses());
+                }
             }
 
-            return new ArrayList<>(list);
         } catch (Exception e) {
-            throw new SQLException("Error during CSV processing and persistence", e);
-        } finally {
-            entityManager.createNativeQuery("DROP TABLE " + tempTableName).executeUpdate();
+            e.printStackTrace();
+        }
+
+        if (!exceptions.isEmpty()) {
+            throw new CsvException("CsvException", exceptions);
         }
     }
 
-    private <E extends CsvClass> List<E> readCsvData(InputStream inputStream, Class<E> entityClass) {
-        try {
-            return csvService.readCsvObject(inputStream, entityClass);
-        } catch (Exception e) {
-            throw new RuntimeException("Error reading CSV data for " + entityClass.getSimpleName(), e);
-        }
-    }
-
-    private <E extends CsvClass, M> void saveEntity(E source, M main) throws SQLException {
-        try {
-            // Persist source (temporary entity)
-            entityManager.persist(source);
-            // Copy fields from source to main entity
-            copyToMain(source, main);
-            // Persist main entity (final entity)
-            entityManager.merge(main);
-            // Flush changes to ensure they are saved immediately
-            entityManager.flush();
-        } catch (Exception e) {
-            throw new SQLException("Error saving entity to temporary table", e);
-        }
-    }
-
-    private <E extends CsvClass, M> void copyToMain(E source, M main) throws Exception {
-        Field[] sourceFields = source.getClass().getDeclaredFields();
-        for (Field sourceField : sourceFields) {
-            sourceField.setAccessible(true);
-            Field mainField = main.getClass().getDeclaredField(sourceField.getName());
-            mainField.setAccessible(true);
-            mainField.set(main, sourceField.get(source));
-        }
-    }
-
-    private <E extends CsvClass> E createEntityInstance(Class<E> entityClass) throws SQLException {
-        try {
-            return entityClass.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            throw new SQLException("Error creating entity instance for " + entityClass.getSimpleName(), e);
-        }
-    }
 }

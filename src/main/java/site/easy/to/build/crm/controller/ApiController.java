@@ -65,7 +65,11 @@ public class ApiController {
     public ResponseEntity<?> leads() {
         try {
             List<Lead> list = leadService.findAll();
+            System.out.println("TOTOTOTOOO");
             List<LeadDTO> lista = new ArrayList<>();
+            for (Lead lead : list) {
+                System.out.println("hola "+lead.getCustomer()+" "+lead.getLeadId());
+            }
             for (Lead lead : list) {
                 lista.add(new LeadDTO(lead));
             }
@@ -114,27 +118,37 @@ public class ApiController {
         }
     }
     @PutMapping("/leads/{id}")
-    public ResponseEntity<Lead> updateLead(@PathVariable("id") int id, @RequestBody LeadDTO updatedLead) {
+    public ResponseEntity<?> updateLead(@PathVariable("id") int id, @RequestBody LeadDTO updatedLead) {
 
-        Lead taloha = leadService.findByLeadId(id);
-        System.out.println("huhu "+updatedLead.getAmount());
-        taloha.setAmount(updatedLead.getAmount());
-        Lead lead = leadService.updateLead(id, taloha);
-        if (lead == null) {
-            return ResponseEntity.notFound().build();
+        try{
+            Lead taloha = leadService.findByLeadId(id);
+            taloha.setAmount(updatedLead.getAmount());
+            Lead lead = leadService.updateLead(id, taloha);
+            if (lead == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(lead);
         }
-        return ResponseEntity.ok(lead);
+        catch(Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     @PutMapping("/tickets/{id}")
-    public ResponseEntity<Ticket> updateTicket(@PathVariable("id") int id, @RequestBody TicketDTO updatedTicket) {
+    public ResponseEntity<?> updateTicket(@PathVariable("id") int id, @RequestBody TicketDTO updatedTicket) {
 
-        Ticket taloha = ticketService.findByTicketId(id);
-        taloha.setAmount(updatedTicket.getAmount());
-        Ticket ticket = ticketService.updateTicket(id, taloha);
-        if (ticket == null) {
-            return ResponseEntity.notFound().build();
+        try{
+            Ticket taloha = ticketService.findByTicketId(id);
+            taloha.setAmount(updatedTicket.getAmount());
+            Ticket ticket = ticketService.updateTicket(id, taloha);
+            if (ticket == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(ticket);
         }
-        return ResponseEntity.ok(ticket);
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     @GetMapping("/customer-spending-dists/{id}")
     public ResponseEntity<?> customerSpendingDistDetail(@PathVariable("id") int customerId) {

@@ -83,14 +83,14 @@ public class AlertRateService {
         BigDecimal totalTicketAmount = ticketService.getTotalAmountTickets(customerId);
         totalAmount = totalAmount.add(totalTicketAmount);
         BigDecimal totalBudget = budgetService.getTotalAmountBudget(customerId);
-        return totalAmount.add(lead.getAmount()).compareTo(totalBudget) > 0;
+        return totalAmount.add(lead.getAmount()).compareTo(totalBudget) >= 0;
     }
     public boolean checkDepasse(int customerId, Ticket ticket) {
-        BigDecimal totalAmount = leadService.getTotalAmountLeads(customerId);
+        BigDecimal totalAmount = ticketService.getTotalAmountTickets(customerId);
         BigDecimal totalLeadAmount = leadService.getTotalAmountLeads(customerId);
         totalAmount = totalAmount.add(totalLeadAmount);
         BigDecimal totalBudget = budgetService.getTotalAmountBudget(customerId);
-        return totalAmount.add(ticket.getAmount()).compareTo(totalBudget) > 0;
+        return totalAmount.add(ticket.getAmount()).compareTo(totalBudget) >= 0;
     }
     public BigDecimal getTotalAmountSpendings(){
         List<Customer> customers = customerService.findAll();

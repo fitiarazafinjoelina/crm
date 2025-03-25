@@ -12,7 +12,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class CsvService {
@@ -25,7 +27,7 @@ public class CsvService {
             }
         }
     }
-    public <T> List<T> readCsvObject(InputStream inputStream, Class<T> clazz) throws IOException, CsvException {
+    public <T> List<T> readCsvObject(InputStream inputStream, Class<T> clazz) throws IOException {
         try (InputStreamReader reader = new InputStreamReader(inputStream)) {
             CsvToBean<T> csvToBean = new CsvToBeanBuilder<T>(reader)
                     .withType(clazz)
@@ -35,7 +37,22 @@ public class CsvService {
 
             return csvToBean.parse();
         }
-    }public <T> void writeCsv(List<T> objects, String filePath) {
+    }
+    public <T> List<T> readCsvObjectUnique(InputStream inputStream, Class<T> clazz) throws IOException {
+        try (InputStreamReader reader = new InputStreamReader(inputStream)) {
+            CsvToBean<T> csvToBean = new CsvToBeanBuilder<T>(reader)
+                    .withType(clazz)
+                    .withSeparator(',')
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .build();
+
+            List<T> parsedList = csvToBean.parse();
+
+            return new HashSet<>(parsedList).stream().toList();
+        }
+    }
+
+    public <T> void writeCsv(List<T> objects, String filePath) {
         try (CSVWriter writer = new CSVWriter(new FileWriter(filePath))) {
 
 

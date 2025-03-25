@@ -2,16 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <div th:insert="~{/general/head.html}"></div>
-<meta name="_csrf" content="${_csrf.token}"/>
-<meta name="_csrf_header" content="${_csrf.headerName}"/>
 
 <!-- Editable CSS -->
-<link rel="stylesheet" type="text/css"
-      th:href="@{/css/dataTables.bootstrap4.css}">
-<link rel="stylesheet" type="text/css"
-      th:href="@{/css/responsive.dataTables.min.css}">
 
 <!-- Custom CSS -->
+<link th:href="@{/css/bootstrap-wysihtml5.css}" rel="stylesheet">
 <link th:href="@{/css/style.min.css}" rel="stylesheet">
 <!-- page css -->
 <link th:href="@{/css/pages/inbox.css}" rel="stylesheet">
@@ -21,12 +16,6 @@
 <!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
 <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-<style>
-    .text-purple {
-        color: #800080; /* Purple color */
-    }
-
-</style>
 <![endif]-->
 </head>
 
@@ -80,47 +69,30 @@
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
-                            <h4 class="card-title">Leads</h4>
-                            <div class="table-responsive m-t-40">
-                                <table id="config-table" class="table display table-bordered table-striped no-wrap">
-                                    <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Lead</th>
-                                        <th>phone</th>
-                                        <th>Status</th>
-                                        <th>Amount</th>
-                                        <th>Customer</th>
-                                        <th>Assigned Employee</th>
-                                        <th>Show</th>
-                                        <th>Edit</th>
-                                        <th>Delete</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr th:if="${leads != null}" th:each="lead : ${leads}">
-                                        <td th:text="${lead.leadId}"></td>
-                                        <td th:text="${lead.name}"></td>
-                                        <td th:text="${lead.phone}"></td>
-                                        <td th:text="${lead.status}"></td>
-                                        <td th:text="${lead.amount}"
-                                            th:class="${lead.amount > 100 ? 'text-danger' : lead.amount > 50 ? 'text-warning' : lead.amount > 10 ? 'text-purple' : lead.amount > 0 ? 'text-success' : 'text-muted'}">
-                                        </td>
-                                        <td th:text="${lead.customer.name}"></td>
-                                        <td th:text="${lead.employee.username}"></td>
-                                        <td><a th:href="${home + 'employee/lead/show/' + lead.leadId}"><i class="fas fa-eye"></i></a></td>
-                                        <td><a th:href="${home + 'employee/lead/update/' + lead.leadId}"><i class="fas fa-edit"></i></a></td>
-                                        <td>
-                                            <form th:action="${home + 'employee/lead/delete/' + lead.leadId}" method="post">
-                                                <button type="submit" class="btn btn-primary">
-                                                    <i class="mdi mdi-delete"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+                            <h4 class="card-title">Import Data</h4>
+                            <div th:if="${error != null}" class="alert alert-danger">
+                                <ul>
+                                    <li th:each="err : ${error}">
+                                        <strong th:text="${err}"></strong>
+                                    </li>
+                                </ul>
                             </div>
+                            <form class="form-group" th:action="@{/csv/upload}" method="POST" enctype="multipart/form-data">
+                                <label class="m-t-20" for="customerFile">Select Customer CSV File</label>
+                                <div class="input-group">
+                                    <input class="form-control-file" type="file" name="customerFile" id="customerFile" required>
+                                </div>
+                                <label class="m-t-20" for="budgetFile">Select Budget CSV File</label>
+                                <div class="input-group">
+                                    <input class="form-control-file" type="file" name="budgetFile" id="budgetFile" required>
+                                </div>
+                                <label class="m-t-20" for="ticketLeadFile">Select Ticket/Lead CSV File</label>
+                                <div class="input-group">
+                                    <input class="form-control-file" type="file" name="ticketLeadFile" id="ticketLeadFile" required>
+                                </div>
+                                <input type="hidden" name="csrf" th:value="${_csrf.token}"/>
+                                <button type="submit" class="btn btn-primary m-t-20">Import</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -177,12 +149,14 @@
 <!--Custom JavaScript -->
 <script th:src="@{/js/library/custom.min.js}" type="text/javascript">></script>
 <!-- Editable -->
-<script th:src="@{/js/library/jquery.dataTables.min.js}"></script>
-<script th:src="@{/js/library/dataTables.responsive.min.js}"></script>
+
+<script th:src="@{/js/library/wysihtml5-0.3.0.js}"></script>
+<script th:src="@{/js/library/bootstrap-wysihtml5.js}"></script>
 <script>
-    $('#config-table').DataTable({
-        responsive: true
+    $(document).ready(function() {
+        $('.textarea_editor').wysihtml5();
     });
 </script>
+
 </body>
 </html>

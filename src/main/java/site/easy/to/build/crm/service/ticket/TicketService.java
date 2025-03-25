@@ -1,9 +1,8 @@
 package site.easy.to.build.crm.service.ticket;
 
-import site.easy.to.build.crm.entity.AlertRate;
-import site.easy.to.build.crm.entity.Budget;
-import site.easy.to.build.crm.entity.Customer;
-import site.easy.to.build.crm.entity.Ticket;
+import site.easy.to.build.crm.entity.*;
+import site.easy.to.build.crm.entity.csvImport.TicketLeadImport;
+import site.easy.to.build.crm.entity.temp.TicketTemp;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -39,4 +38,6 @@ public interface TicketService {
     public void deleteAll();
     public BigDecimal getTotalAmountTickets(int customerId);
     public Ticket updateTicket(int id, Ticket updatedTicket);
+    public TicketTemp toTicket(User user, TicketLeadImport ticketTicketImport,List<User> employees);
+    public List<TicketTemp> toTickets(User user, List<TicketLeadImport> ticketTicketImports);
 }

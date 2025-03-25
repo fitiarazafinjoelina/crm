@@ -2,6 +2,9 @@ package site.easy.to.build.crm.service.customer;
 
 import org.checkerframework.checker.units.qual.C;
 import site.easy.to.build.crm.entity.Customer;
+import site.easy.to.build.crm.entity.User;
+import site.easy.to.build.crm.entity.csvImport.CustomerImport;
+import site.easy.to.build.crm.entity.temp.CustomerTemp;
 
 import java.util.List;
 
@@ -12,6 +15,7 @@ public interface CustomerService {
     public List<Customer> findByUserId(int userId);
 
     public Customer findByEmail(String email);
+    public Customer findByCustomerEmail(String customerEmail);
 
     public List<Customer> findAll();
 
@@ -23,5 +27,7 @@ public interface CustomerService {
 
     long countByUserId(int userId);
     public void deleteAll();
+    public CustomerTemp toCustomer(User user, CustomerImport customerImport);
+    public List<CustomerTemp> toCustomers(User user, List<CustomerImport> customerImports);
 
 }

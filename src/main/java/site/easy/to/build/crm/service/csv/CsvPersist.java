@@ -5,9 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.easy.to.build.crm.entity.CustomerLoginInfo;
-import site.easy.to.build.crm.entity.temp.CustomerLoginInfoTemp;
 import site.easy.to.build.crm.repository.CustomerLoginInfoRepository;
-import site.easy.to.build.crm.repository.temp.CustomerLoginInfoTempRepository;
 
 import java.io.InputStream;
 import java.sql.SQLException;
@@ -17,15 +15,13 @@ import java.util.stream.Collectors;
 @Service
 public class CsvPersist {
     @Autowired
-    private CustomerLoginInfoTempRepository customerLoginInfoTempRepository;
-    @Autowired
     private CustomerLoginInfoRepository customerLoginInfoRepository;
     @Autowired
     CsvService csvService;
     @Autowired
     private EntityManager entityManager;
 
-    @Transactional(rollbackFor = SQLException.class)
+    /*@Transactional(rollbackFor = SQLException.class)
     public List<CustomerLoginInfo> persistCustomerLoginInfo(InputStream inputStream) throws SQLException {
         try {
             entityManager.createNativeQuery(new CustomerLoginInfoTemp().getTempTable()).executeUpdate();
@@ -58,5 +54,5 @@ public class CsvPersist {
         finally {
             entityManager.createNativeQuery("DROP TABLE "+new CustomerLoginInfoTemp().getTempTableName()).executeUpdate();
         }
-    }
+    }*/
 }

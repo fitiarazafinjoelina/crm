@@ -26,6 +26,7 @@ public class CleanUpService {
             entityManager.createNativeQuery("DELETE FROM ticket_settings").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM file").executeUpdate();
             entityManager.createNativeQuery("DELETE FROM google_drive_file").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM budget").executeUpdate();
         } finally {
             entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 1").executeUpdate();
         }

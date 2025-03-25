@@ -1,19 +1,21 @@
-package site.easy.to.build.crm.entity;
+package site.easy.to.build.crm.entity.temp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.opencsv.bean.CsvBindByName;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.groups.Default;
 import site.easy.to.build.crm.customValidations.customer.UniqueEmail;
-import site.easy.to.build.crm.entity.temp.CustomerTemp;
+import site.easy.to.build.crm.entity.CustomerLoginInfo;
+import site.easy.to.build.crm.entity.User;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "customer")
-public class Customer {
+public class CustomerPersist {
 
     public interface CustomerUpdateValidationGroupInclusion {}
     @Id
@@ -62,25 +64,21 @@ public class Customer {
     @Column(name = "youtube")
     private String youtube;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable=false)
-    @JsonIgnoreProperties("customer")
-    private User user;
+    @Column(name = "user_id")
+    private Integer userId;
 
-    @OneToOne
-    @JoinColumn(name = "profile_id")
-    @JsonIgnore
-    private CustomerLoginInfo customerLoginInfo;
+    @Column(name = "profile_id")
+    private Integer profileId;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    public Customer() {
+    public CustomerPersist() {
     }
 
-    public Customer(String name, String email, String position, String phone, String address, String city, String state, String country,
-                    String description, String twitter, String facebook, String youtube, User user, CustomerLoginInfo customerLoginInfo,
-                    LocalDateTime createdAt) {
+    public CustomerPersist(String name, String email, String position, String phone, String address, String city, String state, String country,
+                           String description, String twitter, String facebook, String youtube, Integer userId, Integer profileId,
+                           LocalDateTime createdAt) {
         this.name = name;
         this.email = email;
         this.position = position;
@@ -93,8 +91,8 @@ public class Customer {
         this.twitter = twitter;
         this.facebook = facebook;
         this.youtube = youtube;
-        this.user = user;
-        this.customerLoginInfo = customerLoginInfo;
+        this.userId = userId;
+        this.profileId = profileId;
         this.createdAt = createdAt;
     }
 
@@ -202,20 +200,20 @@ public class Customer {
         this.youtube = youtube;
     }
 
-    public User getUser() {
-        return user;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
-    public CustomerLoginInfo getCustomerLoginInfo() {
-        return customerLoginInfo;
+    public Integer getProfileId() {
+        return profileId;
     }
 
-    public void setCustomerLoginInfo(CustomerLoginInfo customerLoginInfo) {
-        this.customerLoginInfo = customerLoginInfo;
+    public void setProfileId(Integer profileId) {
+        this.profileId = profileId;
     }
 
     public LocalDateTime getCreatedAt() {

@@ -1,15 +1,23 @@
 package site.easy.to.build.crm.service.budget;
+import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import site.easy.to.build.crm.entity.Customer;
 import site.easy.to.build.crm.entity.Budget;
+import site.easy.to.build.crm.entity.User;
+import site.easy.to.build.crm.entity.csvImport.BudgetImport;
+import site.easy.to.build.crm.entity.temp.BudgetTemp;
 import site.easy.to.build.crm.repository.BudgetRepository;
 import site.easy.to.build.crm.service.customer.CustomerService;
 
 import java.math.BigDecimal;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class BudgetService {
@@ -77,5 +85,25 @@ public class BudgetService {
             totalAmount = totalAmount.add(getTotalAmountBudget(customer.getCustomerId()));
         }
         return totalAmount;
+    }
+    public BudgetTemp toBudget(User user, BudgetImport budgetImport){
+        BudgetTemp budgetTemp = new BudgetTemp();
+        Faker faker = new Faker();
+        Customer customer = customerService.findByEmail(budgetImport.getCustomerEmail());
+
+        budgetTemp.setAmount(budgetImport.getBudget());
+        budgetTemp.setManagerId(user.getId());
+        budgetTemp.setCustomerId(customer.getCustomerId());
+        Date daty = Date.from(customer.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant());
+        budgetTemp.setCreatedAt(faker.date().future(365, TimeUnit.DAYS,daty).toInstant().atZone(ZoneId.systemDefault()).toLocalDate().atStartOfDay());
+
+        return budgetTemp;
+    }
+    public List<BudgetTemp> toBudgets(User user,List<BudgetImport> budgetImports){
+        List<BudgetTemp> budgetTemps = new ArrayList<>();
+        for (BudgetImport budgetImport : budgetImports) {
+            budgetTemps.add(toBudget(user,budgetImport));
+        }
+        return budgetTemps;
     }
 }

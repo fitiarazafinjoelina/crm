@@ -77,7 +77,7 @@ public class SecurityConfig {
 
         http.
                 authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/api/loginDotNet").permitAll()  // Explicitly allow access to the login API
+                        .requestMatchers("/api/loginDotNet").permitAll()
                         .requestMatchers("/api/**").permitAll()
                         .requestMatchers("/api/customerspendingdistdetail").permitAll()
                         .requestMatchers("/register/**").permitAll()

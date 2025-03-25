@@ -1,24 +1,34 @@
 package site.easy.to.build.crm.service.ticket;
 
+import com.github.javafaker.Faker;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import site.easy.to.build.crm.entity.*;
-import site.easy.to.build.crm.repository.BudgetRepository;
-import site.easy.to.build.crm.repository.CustomerRepository;
-import site.easy.to.build.crm.repository.TicketRepository;
-import site.easy.to.build.crm.service.budget.BudgetService;
-import site.easy.to.build.crm.service.lead.LeadService;
+import site.easy.to.build.crm.entity.csvImport.TicketLeadImport;
+import site.easy.to.build.crm.entity.temp.TicketTemp;
+import site.easy.to.build.crm.repository.*;
 
 import java.math.BigDecimal;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class TicketServiceImpl implements TicketService{
 
     private final TicketRepository ticketRepository;
-    public TicketServiceImpl(TicketRepository ticketRepository) {
+    private final CustomerRepository customerRepository;
+    private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
+
+    public TicketServiceImpl(TicketRepository ticketRepository, CustomerRepository customerRepository, RoleRepository roleRepository, UserRepository userRepository) {
         this.ticketRepository = ticketRepository;
+        this.customerRepository = customerRepository;
+        this.roleRepository = roleRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -116,6 +126,42 @@ public class TicketServiceImpl implements TicketService{
 
         updatedTicket.setTicketId(id);
         return ticketRepository.save(updatedTicket);  // Save the updated ticket
+    }
+
+    @Override
+    public TicketTemp toTicket(User user, TicketLeadImport ticketLeadImport, List<User> employees) {
+        if(ticketLeadImport.getType().equals("ticket")){
+            TicketTemp ticket = new TicketTemp();
+            Faker faker = new Faker();
+            Customer customer = customerRepository.findCustomerByEmail(ticketLeadImport.getCustomerEmail());
+            ticket.setCustomerId(customer.getCustomerId());
+            ticket.setManagerId(user.getId());
+            ticket.setEmployeeId(employees.get(faker.number().numberBetween(0, employees.size())).getId());
+            ticket.setDescription(faker.lorem().paragraph());
+            ticket.setSubject(ticketLeadImport.getSubjectOrName());
+            ticket.setPriority(Ticket.getAllPriority()[faker.number().numberBetween(0, Ticket.getAllPriority().length)]);
+            ticket.setStatus(ticketLeadImport.getStatus());
+            ticket.setAmount(ticketLeadImport.getExpense());
+            //ticket.setCreatedAt(faker.date().past(365, TimeUnit.DAYS).toInstant().atZone(ZoneId.systemDefault()).toLocalDate().atStartOfDay());
+            Date daty = Date.from(customer.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant());
+            ticket.setCreatedAt(faker.date().future(365, TimeUnit.DAYS,daty).toInstant().atZone(ZoneId.systemDefault()).toLocalDate().atStartOfDay());
+            return ticket;
+        }
+        return null;
+    }
+
+    @Override
+    public List<TicketTemp> toTickets(User user, List<TicketLeadImport> ticketLeadImports) {
+        List<TicketTemp> tickets = new ArrayList<>();
+        Role role = roleRepository.findByName("ROLE_EMPLOYEE");
+        List<User> users = userRepository.findByRoles(role);
+        for (TicketLeadImport ticketLeadImport : ticketLeadImports) {
+            TicketTemp ticket = toTicket(user, ticketLeadImport,users);
+            if(ticket != null){
+                tickets.add(ticket);
+            }
+        }
+        return tickets;
     }
 
 }

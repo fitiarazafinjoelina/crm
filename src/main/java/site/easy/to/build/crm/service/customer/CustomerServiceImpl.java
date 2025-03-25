@@ -1,12 +1,19 @@
 package site.easy.to.build.crm.service.customer;
 
+import com.github.javafaker.Faker;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import site.easy.to.build.crm.entity.User;
+import site.easy.to.build.crm.entity.csvImport.CustomerImport;
+import site.easy.to.build.crm.entity.temp.CustomerTemp;
 import site.easy.to.build.crm.repository.CustomerRepository;
 import site.easy.to.build.crm.entity.Customer;
 
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -25,6 +32,11 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer findByEmail(String email) {
         return customerRepository.findByEmail(email);
+    }
+
+    @Override
+    public Customer findByCustomerEmail(String customerEmail) {
+        return customerRepository.findCustomerByEmail(customerEmail);
     }
 
     @Override
@@ -60,5 +72,33 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public void deleteAll(){
         customerRepository.deleteAll();
+    }
+
+    @Override
+    public List<CustomerTemp> toCustomers(User user, List<CustomerImport> customerImports) {
+        List<CustomerTemp> customers = new ArrayList<>();
+        for (CustomerImport customerImport : customerImports) {
+            customers.add(toCustomer(user,customerImport));
+        }
+        return customers;
+    }
+
+    @Override
+    public CustomerTemp toCustomer(User user,CustomerImport customerImport) {
+        Faker faker = new Faker();
+        CustomerTemp customer = new CustomerTemp();
+        customer.setEmail(customerImport.getCustomerEmail());
+        customer.setName(customerImport.getCustomerName());
+        customer.setPhone(faker.phoneNumber().cellPhone());
+        customer.setAddress(faker.address().streetAddress());
+        customer.setCity(faker.address().city());
+        customer.setCountry(faker.address().country());
+        customer.setState(faker.address().state());
+        customer.setUserId(user.getId());
+        customer.setDescription(faker.lorem().paragraph());
+        customer.setPosition(faker.job().position());
+        customer.setCreatedAt(faker.date().past(365, TimeUnit.DAYS).toInstant()
+                .atZone(ZoneId.systemDefault()).toLocalDate().atStartOfDay());
+        return customer;
     }
 }

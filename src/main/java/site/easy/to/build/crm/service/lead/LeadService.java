@@ -1,6 +1,9 @@
 package site.easy.to.build.crm.service.lead;
 
 import site.easy.to.build.crm.entity.*;
+import site.easy.to.build.crm.entity.csvImport.CustomerImport;
+import site.easy.to.build.crm.entity.csvImport.TicketLeadImport;
+import site.easy.to.build.crm.entity.temp.LeadTemp;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -34,5 +37,8 @@ public interface LeadService {
     public void deleteAll();
     public BigDecimal getTotalAmountLeads(int customerId);
     public Lead updateLead(int id, Lead updatedLead);
+    public LeadTemp toLead(User user, TicketLeadImport ticketLeadImport, List<User> employees);
+    public List<LeadTemp> toLeads(User user,List<TicketLeadImport> ticketLeadImports);
+
 
 }

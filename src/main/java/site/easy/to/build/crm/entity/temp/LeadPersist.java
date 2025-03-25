@@ -1,15 +1,15 @@
-package site.easy.to.build.crm.entity;
+package site.easy.to.build.crm.entity.temp;
 
+import com.opencsv.bean.CsvBindByName;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "trigger_lead")
-public class Lead {
+public class LeadPersist{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "lead_id")
@@ -36,26 +36,14 @@ public class Lead {
     @Column(name = "google_drive_folder_id")
     private String googleDriveFolderId;
 
-    @OneToMany(mappedBy = "lead", cascade = CascadeType.ALL)
-    private List<LeadAction> leadActions;
+    @Column(name = "user_id")
+    private Integer userId;
 
-    @OneToMany(mappedBy = "lead", cascade = CascadeType.ALL)
-    private List<File> files;
+    @Column(name = "employee_id")
+    private Integer employeeId;
 
-    @OneToMany(mappedBy = "lead", cascade = CascadeType.ALL)
-    private List<GoogleDriveFile> googleDriveFiles;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User manager;
-
-    @ManyToOne
-    @JoinColumn(name = "employee_id")
-    private User employee;
-
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
+    @Column(name = "customer_id")
+    private Integer customerId;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -67,7 +55,7 @@ public class Lead {
     @Column(name = "amount")
     private BigDecimal amount;
 
-    public Lead() {
+    public LeadPersist() {
     }
 
     public static String[] getAllStatus(){
@@ -75,21 +63,17 @@ public class Lead {
         return be.split("\\|");
     }
 
-    public Lead(String name, String status, String phone, String meetingId, Boolean googleDrive, String googleDriveFolderId,
-                List<LeadAction> leadActions, List<File> files, List<GoogleDriveFile> googleDriveFiles, User manager, User employee,
-                Customer customer, LocalDateTime createdAt,BigDecimal amount) {
+    public LeadPersist(int leadId, String name, String status, String phone, String meetingId, Boolean googleDrive, String googleDriveFolderId, Integer userId, Integer employeeId, Integer customerId, LocalDateTime createdAt, BigDecimal amount) {
+        this.leadId = leadId;
         this.name = name;
         this.status = status;
         this.phone = phone;
         this.meetingId = meetingId;
         this.googleDrive = googleDrive;
         this.googleDriveFolderId = googleDriveFolderId;
-        this.leadActions = leadActions;
-        this.files = files;
-        this.googleDriveFiles = googleDriveFiles;
-        this.manager = manager;
-        this.employee = employee;
-        this.customer = customer;
+        this.userId = userId;
+        this.employeeId = employeeId;
+        this.customerId = customerId;
         this.createdAt = createdAt;
         this.amount = amount;
     }
@@ -150,77 +134,28 @@ public class Lead {
         this.meetingId = meetingId;
     }
 
-    public List<LeadAction> getLeadActions() {
-        return leadActions;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void addLeadAction(LeadAction leadAction) {
-        this.leadActions.add(leadAction);
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
-    public void removeLeadAction(LeadAction leadAction) {
-        this.leadActions.remove(leadAction);
+    public Integer getEmployeeId() {
+        return employeeId;
     }
 
-    public List<File> getFiles() {
-        return files;
+    public void setEmployeeId(Integer employeeId) {
+        this.employeeId = employeeId;
     }
 
-    public void addFile(File file) {
-        this.files.add(file);
+    public Integer getCustomerId() {
+        return customerId;
     }
 
-    public void removeFile(File file) {
-        this.files.remove(file);
-    }
-
-
-    public void addGoogleDriveFile(GoogleDriveFile googleDriveFile) {
-        this.googleDriveFiles.add(googleDriveFile);
-    }
-
-    public void removeGoogleDriveFile(GoogleDriveFile googleDriveFile) {
-        this.googleDriveFiles.remove(googleDriveFile);
-    }
-
-    public List<GoogleDriveFile> getGoogleDriveFiles() {
-        return googleDriveFiles;
-    }
-
-    public void setGoogleDriveFiles(List<GoogleDriveFile> googleDriveFiles) {
-        this.googleDriveFiles = googleDriveFiles;
-    }
-
-    public User getManager() {
-        return manager;
-    }
-
-    public void setManager(User manager) {
-        this.manager = manager;
-    }
-
-    public User getEmployee() {
-        return employee;
-    }
-
-    public void setEmployee(User employee) {
-        this.employee = employee;
-    }
-
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
-    }
-
-    public void setFiles(List<File> files) {
-        this.files = files;
-    }
-
-    public void setLeadActions(List<LeadAction> leadActions) {
-        this.leadActions = leadActions;
+    public void setCustomerId(Integer customerId) {
+        this.customerId = customerId;
     }
 
     public LocalDateTime getCreatedAt() {

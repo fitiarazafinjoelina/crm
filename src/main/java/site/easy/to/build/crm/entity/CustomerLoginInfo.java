@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvBindByPosition;
 import jakarta.persistence.*;
-import site.easy.to.build.crm.entity.temp.CustomerLoginInfoTemp;
+
+import java.io.Serializable;
 
 @Entity
 @Table(name = "customer_login_info")
-public class CustomerLoginInfo {
+public class CustomerLoginInfo{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,13 +43,6 @@ public class CustomerLoginInfo {
         this.token = token;
         this.passwordSet = passwordSet;
         this.customer = customer;
-    }
-
-    public CustomerLoginInfo(CustomerLoginInfoTemp customerLoginInfoTemp) {
-        setUsername(customerLoginInfoTemp.getUsername());
-        setPassword(customerLoginInfoTemp.getPassword());
-        setToken(customerLoginInfoTemp.getToken());
-        setPasswordSet(customerLoginInfoTemp.getPasswordSet());
     }
 
     public Integer getId() {
@@ -110,4 +104,5 @@ public class CustomerLoginInfo {
     public Boolean getPasswordSet() {
         return passwordSet;
     }
+
 }
