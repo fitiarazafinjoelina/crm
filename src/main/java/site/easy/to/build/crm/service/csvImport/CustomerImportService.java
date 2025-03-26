@@ -9,6 +9,8 @@ import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import site.easy.to.build.crm.entity.csvImport.CustomerImport;
 import site.easy.to.build.crm.repository.CustomerImportRepository;
 import site.easy.to.build.crm.repository.CustomerRepository;

@@ -1,5 +1,8 @@
 package site.easy.to.build.crm.controller;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,11 +68,7 @@ public class ApiController {
     public ResponseEntity<?> leads() {
         try {
             List<Lead> list = leadService.findAll();
-            System.out.println("TOTOTOTOOO");
             List<LeadDTO> lista = new ArrayList<>();
-            for (Lead lead : list) {
-                System.out.println("hola "+lead.getCustomer()+" "+lead.getLeadId());
-            }
             for (Lead lead : list) {
                 lista.add(new LeadDTO(lead));
             }
@@ -130,7 +129,12 @@ public class ApiController {
             return ResponseEntity.ok(lead);
         }
         catch(Exception e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            e.printStackTrace();
+            String message = e.getMessage();
+            if(e.getCause().getCause()!=null){
+                message = e.getCause().getCause().getMessage();
+            }
+            return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @PutMapping("/tickets/{id}")
@@ -146,8 +150,12 @@ public class ApiController {
             return ResponseEntity.ok(ticket);
         }
         catch(Exception e){
-            System.out.println(e.getMessage());
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            e.printStackTrace();
+            String message = e.getMessage();
+            if(e.getCause().getCause()!=null){
+                message = e.getCause().getCause().getMessage();
+            }
+            return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @GetMapping("/customer-spending-dists/{id}")

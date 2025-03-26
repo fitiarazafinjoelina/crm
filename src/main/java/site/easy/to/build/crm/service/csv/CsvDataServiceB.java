@@ -1,7 +1,11 @@
 package site.easy.to.build.crm.service.csv;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -28,10 +32,9 @@ public class CsvDataServiceB<T, R> {
         HashSet<String> exceptions = new HashSet<>();
         String tempTableName = null;
         boolean exceptionFlag = false;
+        int index = 1;
+        int mainIndex = 1;
         try {
-
-            int index = 1;
-            int mainIndex = 1;
             String tempTable = temps.get(0).getTempTable();
             tempTableName = temps.get(0).getTempTableName();
 
@@ -39,6 +42,7 @@ public class CsvDataServiceB<T, R> {
 
 
             for (E entity : temps) {
+                System.out.println("i");
                 try{
                     saveEntity(entity,exceptions,index,fileName);
 
@@ -46,7 +50,6 @@ public class CsvDataServiceB<T, R> {
                 catch (Exception e){
                     exceptionFlag = true;
                     System.out.println("Exception here at save temp at line "+index);
-                    System.out.println(e.getCause().getMessage());
                     entityManager.clear();
                 }
                 index++;
@@ -59,15 +62,28 @@ public class CsvDataServiceB<T, R> {
                 try{
                     M mainEntity = mainClass.getDeclaredConstructor().newInstance();
                     saveMainEntity(entity, mainEntity,exceptions,mainIndex,fileName);
+                    mainIndex+=1;
                 }
                 catch (Exception e){
                     exceptionFlag = true;
                     System.out.println("Exception here at save main at line "+mainIndex);
-                    System.out.println(e.getCause().getMessage());
-                    entityManager.clear();
-                    exceptions.add("SQL ERROR at line "+index+" of file"+fileName+":"+e.getCause().getMessage());
+
+                    if(e instanceof ConstraintViolationException){
+                        ConstraintViolationException ee = (ConstraintViolationException)e;
+                        for (ConstraintViolation<?> constraintViolation : ee.getConstraintViolations()) {
+                            ConstraintViolationImpl violation = (ConstraintViolationImpl) constraintViolation;
+                            exceptions.add("ERROR in file "+fileName+" at line "+mainIndex+": "+violation.getMessage()+" "+entity.toString());
+                        }
+                    }
+                    else{
+                        String mess = e.getMessage();
+                        if(e.getCause()!=null){
+                            mess = e.getCause().getMessage();
+                        }
+                        exceptions.add("SQL ERROR at line "+mainIndex+" of file"+fileName+":"+mess+" "+entity.toString());
+                    }
+                    mainIndex+=1;
                 }
-                mainIndex++;
 
             }
             if(!exceptions.isEmpty()){
@@ -81,6 +97,7 @@ public class CsvDataServiceB<T, R> {
             System.out.println(e.getMessage());
             exceptionFlag = true;
             entityManager.clear();
+            //exceptions.add("SQL ERROR in file "+fileName+": "+e.getMessage());
             throw new CsvException("ERROR", exceptions);
         }
         finally {
@@ -92,13 +109,10 @@ public class CsvDataServiceB<T, R> {
     }
 
     private <E extends CsvClass, M> void saveEntity(E source,Set<String>exceptions,int i,String fileName) {
-        System.out.println("iiii "+i);
         if (source.isValid()){
-            System.out.println("valid");
             entityManager.persist(source);
         }
         else {
-            System.out.println("atoo "+i);
             exceptions.add("not valid object at line " + i+" of file " + fileName);
         }
     }
@@ -124,7 +138,11 @@ public class CsvDataServiceB<T, R> {
             }
         }
         catch (Exception e) {
-            exceptions.add(e.getCause().getMessage());
+            String mess = e.getMessage();
+            if(e.getCause()!=null){
+                mess = e.getCause().getMessage();
+            }
+            exceptions.add(mess);
             e.printStackTrace();
         }
 
@@ -139,13 +157,13 @@ public class CsvDataServiceB<T, R> {
     }
 
 
-    private <E extends CsvClass> List<E> readCsvData(InputStream inputStream, Class<E> entityClass) {
+   /* private <E extends CsvClass> List<E> readCsvData(InputStream inputStream, Class<E> entityClass) {
         try {
             return csvService.readCsvObject(inputStream, entityClass);
         } catch (Exception e) {
             throw new RuntimeException("Error reading CSV data for " + entityClass.getSimpleName(), e);
         }
-    }
+    }*/
 
      /*@Transactional(rollbackFor = CsvException.class)
     public <E extends CsvClass, M> List<E> persistCsvData(InputStream inputStream, Class<E> entityClass, Class<M> mainClass) throws CsvException {

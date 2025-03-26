@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import site.easy.to.build.crm.entity.Customer;
 import site.easy.to.build.crm.entity.Budget;
 import site.easy.to.build.crm.entity.User;
@@ -17,6 +19,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -99,10 +102,16 @@ public class BudgetService {
 
         return budgetTemp;
     }
-    public List<BudgetTemp> toBudgets(User user,List<BudgetImport> budgetImports){
+    public List<BudgetTemp> toBudgets(User user,List<BudgetImport> budgetImports, String file, Set<String> exceptions){
         List<BudgetTemp> budgetTemps = new ArrayList<>();
+        int i =1;
         for (BudgetImport budgetImport : budgetImports) {
+            try{
             budgetTemps.add(toBudget(user,budgetImport));
+            }catch (Exception e){
+                exceptions.add("ERROR at line "+i+" of file "+file+": "+e.getMessage());
+            }
+            i++;
         }
         return budgetTemps;
     }

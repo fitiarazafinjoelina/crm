@@ -1,10 +1,13 @@
 package site.easy.to.build.crm.entity.csvImport;
 
 import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvBindByPosition;
+import com.opencsv.bean.CsvCustomBindByName;
 import com.opencsv.bean.CsvNumber;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import jakarta.validation.groups.Default;
+
 import java.math.BigDecimal;
 
 @Entity
@@ -20,21 +23,25 @@ public class TicketLeadImport {
 
     @Column(name = "customer_email")
     @CsvBindByName(column = "customer_email")
+    //@CsvBindByPosition(position = 0)
     @NotBlank(message = "Customer email is required", groups = {Default.class, TicketLeadImportValidator.class})
     private String customerEmail;
 
     @Column(name = "subject_or_name")
+    //@CsvBindByPosition(position = 1)
     @CsvBindByName(column = "subject_or_name")
     private String subjectOrName;
 
     @Column
     @CsvBindByName
+    //@CsvBindByPosition(position = 2)
     @NotBlank(message = "Type is required", groups = {Default.class, TicketLeadImportValidator.class})
     @Pattern(regexp = "^(lead|ticket)$", message = "Invalid type")
     private String type;
 
     @Column
     @CsvBindByName
+    //@CsvBindByPosition(position = 3)
     @NotBlank(message = "Status is required", groups = {Default.class, TicketLeadImportValidator.class})
     @Pattern(regexp = "^(open|assigned|on-hold|in-progress|resolved|closed|reopened|pending-customer-response|escalated|meeting-to-schedule|scheduled|archived|success|assign-to-sales)$", message = "Invalid status")
     private String status;
@@ -43,6 +50,8 @@ public class TicketLeadImport {
     @CsvBindByName
     @NotNull(message = "Amount is required", groups = {Default.class, TicketLeadImportValidator.class})
     @CsvNumber("#,##")
+    //@CsvBindByPosition(position = 4)
+    //@CsvCustomBindByName(column = "amount", converter = FlexibleBigDecimalConverter.class)
     @DecimalMin(value = "0.00", inclusive = true, message = "Expense must be greater than or equal to 0.00")
     private BigDecimal expense;
 

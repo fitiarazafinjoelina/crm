@@ -560,7 +560,10 @@ public class LeadController {
             LeadEmailSettings leadEmailSettings = leadEmailSettingsService.findByUserId(userId);
 
             CustomerLoginInfo customerLoginInfo = customer.getCustomerLoginInfo();
-            LeadEmailSettings customerLeadEmailSettings = leadEmailSettingsService.findByCustomerId(customerLoginInfo.getId());
+            if(customerLoginInfo !=null){
+
+            }
+            LeadEmailSettings customerLeadEmailSettings = leadEmailSettingsService.findByCustomerId(customerLoginInfo!=null ? customerLoginInfo.getId() : -2);
 
             if (leadEmailSettings != null) {
                 String getterMethodName = "get" + StringUtils.capitalizeFirstLetter(propertyName);

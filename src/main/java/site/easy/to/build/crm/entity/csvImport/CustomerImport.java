@@ -1,6 +1,7 @@
 package site.easy.to.build.crm.entity.csvImport;
 
 import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvBindByPosition;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import site.easy.to.build.crm.customValidations.customer.UniqueEmail;
@@ -15,12 +16,14 @@ public class CustomerImport {
     private Integer id;
 
     @Column(name = "customer_email")
+    //@CsvBindByPosition(position = 0)
     @CsvBindByName(column = "customer_email")
     @NotBlank(message = "Email required", groups = CustomerImportValidator.class)
     @UniqueEmail(message = "Email must be unique", groups = CustomerImportValidator.class)
     private String customerEmail;
 
     @Column(name = "customer_name")
+    //@CsvBindByPosition(position = 1)
     @CsvBindByName(column = "customer_name")
     @NotBlank(message = "Name required", groups = CustomerImportValidator.class)
     private String customerName;

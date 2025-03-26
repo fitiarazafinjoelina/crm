@@ -4,6 +4,8 @@ import com.github.javafaker.Faker;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import site.easy.to.build.crm.entity.*;
 import site.easy.to.build.crm.entity.csvImport.TicketLeadImport;
 import site.easy.to.build.crm.entity.temp.LeadTemp;
@@ -17,6 +19,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -157,14 +160,20 @@ public class LeadServiceImpl implements LeadService {
     }
 
     @Override
-    public List<LeadTemp> toLeads(User user, List<TicketLeadImport> ticketLeadImports) {
+    public List<LeadTemp> toLeads(User user, List<TicketLeadImport> ticketLeadImports, String file, Set<String> exceptions) {
         List<LeadTemp> leads = new ArrayList<>();
         Role role = roleRepository.findByName("ROLE_EMPLOYEE");
         List<User> users = userRepository.findByRoles(role);
+        int i=1;
         for (TicketLeadImport ticketLeadImport : ticketLeadImports) {
-            LeadTemp lead = toLead(user, ticketLeadImport,users);
-            if(lead != null){
-                leads.add(lead);
+            try {
+                LeadTemp lead = toLead(user, ticketLeadImport, users);
+                if (lead != null) {
+                    leads.add(lead);
+                }
+            }catch (Exception e){
+                exceptions.add("ERROR at line "+i+" of file "+file+": "+e.getMessage());
+                e.printStackTrace();
             }
         }
         return leads;

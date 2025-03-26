@@ -13,6 +13,7 @@ import site.easy.to.build.crm.entity.Customer;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -75,30 +76,37 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<CustomerTemp> toCustomers(User user, List<CustomerImport> customerImports) {
+    public List<CustomerTemp> toCustomers(User user, List<CustomerImport> customerImports, String file, Set<String> exceptions) {
         List<CustomerTemp> customers = new ArrayList<>();
+        int i = 1;
         for (CustomerImport customerImport : customerImports) {
-            customers.add(toCustomer(user,customerImport));
+            try {
+                customers.add(toCustomer(user, customerImport));
+            }
+            catch (Exception e) {
+                exceptions.add("ERROR at line "+i+" of file "+file+": "+e.getMessage());
+            }
+            i++;
         }
         return customers;
     }
 
     @Override
-    public CustomerTemp toCustomer(User user,CustomerImport customerImport) {
-        Faker faker = new Faker();
-        CustomerTemp customer = new CustomerTemp();
-        customer.setEmail(customerImport.getCustomerEmail());
-        customer.setName(customerImport.getCustomerName());
-        customer.setPhone(faker.phoneNumber().cellPhone());
-        customer.setAddress(faker.address().streetAddress());
-        customer.setCity(faker.address().city());
-        customer.setCountry(faker.address().country());
-        customer.setState(faker.address().state());
-        customer.setUserId(user.getId());
-        customer.setDescription(faker.lorem().paragraph());
-        customer.setPosition(faker.job().position());
-        customer.setCreatedAt(faker.date().past(365, TimeUnit.DAYS).toInstant()
-                .atZone(ZoneId.systemDefault()).toLocalDate().atStartOfDay());
-        return customer;
+    public CustomerTemp toCustomer(User user, CustomerImport customerImport) {
+            Faker faker = new Faker();
+            CustomerTemp customer = new CustomerTemp();
+            customer.setEmail(customerImport.getCustomerEmail());
+            customer.setName(customerImport.getCustomerName());
+            customer.setPhone(faker.phoneNumber().cellPhone());
+            customer.setAddress(faker.address().streetAddress());
+            customer.setCity(faker.address().city());
+            customer.setCountry(faker.address().country());
+            customer.setState(faker.address().state());
+            customer.setUserId(user.getId());
+            customer.setDescription(faker.lorem().paragraph());
+            customer.setPosition(faker.job().position());
+            customer.setCreatedAt(faker.date().past(365, TimeUnit.DAYS).toInstant()
+                    .atZone(ZoneId.systemDefault()).toLocalDate().atStartOfDay());
+            return customer;
     }
 }

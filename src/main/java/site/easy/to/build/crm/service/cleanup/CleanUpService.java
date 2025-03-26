@@ -31,4 +31,19 @@ public class CleanUpService {
             entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 1").executeUpdate();
         }
     }
+    @Transactional
+    public void cleanupDatabaseImport() {
+        entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 0").executeUpdate();
+        try {
+            entityManager.createNativeQuery("DELETE FROM customer").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM customer_import").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM trigger_lead").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM ticket_lead_import").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM trigger_ticket").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM budget_import").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM budget").executeUpdate();
+        } finally {
+            entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 1").executeUpdate();
+        }
+    }
 }

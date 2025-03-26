@@ -57,7 +57,6 @@ public class AlertRateService {
         alertRateRepository.save(alertRate);
     }
     public boolean checkAlert(int customerId, Lead lead, AlertRate alertRate) {
-        System.out.println("holo");
         BigDecimal totalAmount = leadService.getTotalAmountLeads(customerId);
         System.out.println("totalAmount: " + totalAmount);
         BigDecimal totalTicketAmount = ticketService.getTotalAmountTickets(customerId);
@@ -68,7 +67,6 @@ public class AlertRateService {
         return totalAmount.add(lead.getAmount()).compareTo((alertRate.getPercentage().divide(BigDecimal.valueOf(100))).multiply(totalBudget)) >= 0;
     }
     public boolean checkAlert(int customerId, Ticket ticket, AlertRate alertRate) {
-        System.out.println("holo");
         BigDecimal totalAmount = ticketService.getTotalAmountTickets(customerId);
         BigDecimal totalLeadAmount = leadService.getTotalAmountLeads(customerId);
         System.out.println("totalLeadAmount: " + totalLeadAmount);

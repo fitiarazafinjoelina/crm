@@ -187,14 +187,12 @@ public class TicketController {
 
         AlertRate alertRate = alertRateService.getAllAlertRates().get(0);
         if(alertRateService.checkDepasse(customerId,ticket)){
-            System.out.println("hihih");
             session.setAttribute("surpassTicket",ticket);
             model.addAttribute("surpass",true);
             return "ticket/create-ticket";
         }
         else if(alertRateService.checkAlert(customerId,ticket,alertRate)) {
             ticketService.save(ticket);
-            System.out.println("hihon");
             model.addAttribute("alert",true);
             return "ticket/create-ticket";
         }
@@ -260,7 +258,6 @@ public class TicketController {
         }
         Ticket originalTicket = new Ticket();
         BeanUtils.copyProperties(previousTicket, originalTicket);
-
         User manager = originalTicket.getManager();
         User employee = userService.findById(employeeId);
         Customer customer = customerService.findByCustomerId(customerId);
@@ -312,6 +309,7 @@ public class TicketController {
         ticket.setCustomer(customer);
         ticket.setManager(manager);
         ticket.setEmployee(employee);
+        ticket.setCreatedAt(originalTicket.getCreatedAt());
         Ticket currentTicket = ticketService.save(ticket);
 
         List<String> properties = DatabaseUtil.getColumnNames(entityManager, Ticket.class);
@@ -360,7 +358,7 @@ public class TicketController {
             TicketEmailSettings ticketEmailSettings = ticketEmailSettingsService.findByUserId(userId);
 
             CustomerLoginInfo customerLoginInfo = customer.getCustomerLoginInfo();
-            TicketEmailSettings customerTicketEmailSettings = ticketEmailSettingsService.findByCustomerId(customerLoginInfo.getId());
+            TicketEmailSettings customerTicketEmailSettings = ticketEmailSettingsService.findByCustomerId(customerLoginInfo!=null ? customerLoginInfo.getId() : -2);
 
             if (ticketEmailSettings != null) {
                 String getterMethodName = "get" + StringUtils.capitalizeFirstLetter(propertyName);

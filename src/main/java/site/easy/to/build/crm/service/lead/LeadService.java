@@ -7,6 +7,7 @@ import site.easy.to.build.crm.entity.temp.LeadTemp;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 public interface LeadService {
     public Lead findByLeadId(int id);
@@ -38,7 +39,7 @@ public interface LeadService {
     public BigDecimal getTotalAmountLeads(int customerId);
     public Lead updateLead(int id, Lead updatedLead);
     public LeadTemp toLead(User user, TicketLeadImport ticketLeadImport, List<User> employees);
-    public List<LeadTemp> toLeads(User user,List<TicketLeadImport> ticketLeadImports);
+    public List<LeadTemp> toLeads(User user, List<TicketLeadImport> ticketLeadImports, String file, Set<String> exceptions);
 
 
 }

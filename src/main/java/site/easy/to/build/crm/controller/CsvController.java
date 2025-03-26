@@ -64,80 +64,6 @@ public class CsvController {
     }
     @PostMapping("/upload")
     public String uploadCsv(@RequestParam("customerFile") MultipartFile customerFile, @RequestParam("ticketLeadFile") MultipartFile ticketLeadFile,@RequestParam("budgetFile") MultipartFile budgetFile, Authentication authentication,Model model) {
-        /*Set<String> exceptions = new HashSet<>();
-        try {
-            int userId = authenticationUtils.getLoggedInUserId(authentication);
-            User loggedInUser = userService.findById(userId);
-
-            try{
-                List<CustomerImport> customerImports = csvService.readCsvObject(customerFile.getInputStream(), CustomerImport.class);
-                customerImportService.saveAll(customerImports,exceptions,customerFile.getName());
-                List<CustomerTemp> customers = customerService.toCustomers(loggedInUser, customerImports);
-                csvDataService.saveCsvData(customers,CustomerPersist.class,customerFile.getName());
-            }
-            catch (Exception e){
-                e.printStackTrace();
-                exceptions.add(e.getMessage());
-            }
-            try {
-
-                List<BudgetImport> budgets = csvService.readCsvObject(budgetFile.getInputStream(), BudgetImport.class);
-                budgetImportService.saveAll(budgets,exceptions,budgetFile.getName());
-                List<BudgetTemp> temps = budgetService.toBudgets(loggedInUser, budgets);
-                csvDataService.saveCsvData(temps,BudgetPersist.class,budgetFile.getName());
-
-            }
-            catch (Exception e){
-                e.printStackTrace();
-                exceptions.add(e.getMessage());
-            }
-            try{
-                List<TicketLeadImport> ticketLeadImports = csvService.readCsvObject(ticketLeadFile.getInputStream(), TicketLeadImport.class);
-                ticketLeadImportService.saveAll(ticketLeadImports,exceptions,ticketLeadFile.getName());
-
-                try {
-                    List<TicketTemp> tickets = ticketService.toTickets(loggedInUser, ticketLeadImports);
-                    csvDataService.saveCsvData(tickets,TicketPersist.class,ticketLeadFile.getName());
-
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                    exceptions.add(e.getMessage());
-                }
-                try {
-                    List<LeadTemp> leads = leadService.toLeads(loggedInUser, ticketLeadImports);
-                    csvDataService.saveCsvData(leads,LeadPersist.class,ticketLeadFile.getName());
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                    exceptions.add(e.getMessage());
-                }
-            }
-            catch (Exception e){
-                e.printStackTrace();
-                exceptions.add(e.getMessage());
-            }
-
-            if (exceptions.size() > 0) {
-                throw new CsvException("CsvException",exceptions);
-            }
-
-            return "redirect:/";
-        }
-        catch (CsvException e) {
-            model.addAttribute("error",e.getCauses());
-            return "csv/import-csv";
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return "error/500";
-        }
-        finally {
-            customerImportService.deleteAll();
-            ticketLeadImportService.deleteAll();
-            budgetImportService.deleteAll();
-        }*/
-
         try {
             int userId = authenticationUtils.getLoggedInUserId(authentication);
             User loggedInUser = userService.findById(userId);
@@ -146,7 +72,7 @@ public class CsvController {
         }
         catch (CsvException e) {
             e.printStackTrace();
-            cleanUpService.cleanupDatabase();
+            cleanUpService.cleanupDatabaseImport();
             model.addAttribute("error",e.getCauses());
             return "csv/import-csv";
         }
@@ -156,19 +82,5 @@ public class CsvController {
             budgetImportService.deleteAll();
         }
     }
-    /*@PostMapping("/uploadCustomerLogInfo")
-    public String uploadCsvCustomerLogInfo(@RequestParam("file") MultipartFile file, Model model) {
-        System.out.println(file.getOriginalFilename());
-        try {
-            //List<BudgetTemp> list=csvDataService.persistCsvData(file.getInputStream(), BudgetTemp.class, BudgetPersist.class);
-            return "redirect:/";
-        } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
-            return "csv/import-csv";
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return "error/500";
-        }
-    }*/
+
 }

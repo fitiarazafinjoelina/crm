@@ -7,6 +7,7 @@ import site.easy.to.build.crm.entity.csvImport.CustomerImport;
 import site.easy.to.build.crm.entity.temp.CustomerTemp;
 
 import java.util.List;
+import java.util.Set;
 
 public interface CustomerService {
 
@@ -27,7 +28,9 @@ public interface CustomerService {
 
     long countByUserId(int userId);
     public void deleteAll();
-    public CustomerTemp toCustomer(User user, CustomerImport customerImport);
-    public List<CustomerTemp> toCustomers(User user, List<CustomerImport> customerImports);
 
+    List<CustomerTemp> toCustomers(User user, List<CustomerImport> customerImports, String file, Set<String> exceptions);
+
+
+    CustomerTemp toCustomer(User user, CustomerImport customerImport);
 }

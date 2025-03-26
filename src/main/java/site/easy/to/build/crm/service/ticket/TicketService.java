@@ -6,6 +6,7 @@ import site.easy.to.build.crm.entity.temp.TicketTemp;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 public interface TicketService {
     public Ticket findByTicketId(int id);
@@ -39,5 +40,5 @@ public interface TicketService {
     public BigDecimal getTotalAmountTickets(int customerId);
     public Ticket updateTicket(int id, Ticket updatedTicket);
     public TicketTemp toTicket(User user, TicketLeadImport ticketTicketImport,List<User> employees);
-    public List<TicketTemp> toTickets(User user, List<TicketLeadImport> ticketTicketImports);
+    public List<TicketTemp> toTickets(User user, List<TicketLeadImport> ticketTicketImports, String file, Set<String> exceptions);
 }

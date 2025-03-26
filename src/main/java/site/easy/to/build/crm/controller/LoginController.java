@@ -47,7 +47,6 @@ public class LoginController {
 
     @RequestMapping("/login")
     public String loginPage() {
-        System.out.println("hereeee");
         return "login";
     }
     @PostMapping("/api/loginDotNet")

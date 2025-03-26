@@ -18,6 +18,9 @@ public class CsvException extends Exception {
         super(message);
         setCauses(causes);
     }
+    public CsvException(String message,Throwable cause) {
+        super(message,cause);
+    }
 
     public Set<String> getCauses() {
         return causes;

@@ -1,6 +1,7 @@
 package site.easy.to.build.crm.entity.csvImport;
 
 import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvBindByPosition;
 import com.opencsv.bean.CsvNumber;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
@@ -18,11 +19,13 @@ public class BudgetImport {
     private Integer id;
 
     @CsvBindByName(column = "customer_email")
+    //@CsvBindByPosition(position = 0)
     @Column(name = "customer_email")
     private String customerEmail;
 
     @CsvBindByName(column = "budget")
     @Column(name = "budget")
+    //@CsvBindByPosition(position = 1)
     @NotNull(message = "Amount is required", groups = {Default.class, BudgetImport.class})
     @CsvNumber("#,##")
     @DecimalMin(value = "0.00", inclusive = true, message = "Budget must be greater than or equal to 0.00")
