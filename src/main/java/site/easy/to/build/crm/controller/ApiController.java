@@ -1,21 +1,34 @@
 package site.easy.to.build.crm.controller;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import site.easy.to.build.crm.entity.*;
+import site.easy.to.build.crm.entity.csvImport.CustomerImport;
+import site.easy.to.build.crm.entity.exceptions.CsvException;
 import site.easy.to.build.crm.service.alertRate.AlertRateService;
 import site.easy.to.build.crm.service.api.ApiService;
 import site.easy.to.build.crm.service.budget.BudgetService;
+import site.easy.to.build.crm.service.csv.CsvService;
 import site.easy.to.build.crm.service.customer.CustomerService;
 import site.easy.to.build.crm.service.lead.LeadService;
 import site.easy.to.build.crm.service.ticket.TicketService;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.StringReader;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +46,8 @@ public class ApiController {
     private BudgetService budgetService;
     @Autowired
     private CustomerService customerService;
+    @Autowired
+    private CsvService csvService;
 
     @GetMapping("/nb-customers")
     public int getNbCustomers() {
@@ -127,6 +142,41 @@ public class ApiController {
                 return ResponseEntity.notFound().build();
             }
             return ResponseEntity.ok(lead);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            String message = e.getMessage();
+            if(e.getCause().getCause()!=null){
+                message = e.getCause().getCause().getMessage();
+            }
+            return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PostMapping("/duplicate")
+    public ResponseEntity<?> duplicate(@RequestBody String filee) {
+        System.out.println("ato ohh");
+        System.out.println("received "+filee);
+
+        try{
+            //List<CustomerCopy> copies = csvService.readCsvObject(file.getInputStream(), CustomerCopy.class,file.getName());
+            List<CustomerCopy> copies = new ArrayList<>();
+
+
+            HeaderColumnNameMappingStrategy<CustomerCopy> strategy = new HeaderColumnNameMappingStrategy<>();
+            strategy.setType(CustomerCopy.class);
+
+
+            BufferedReader br = new BufferedReader(new StringReader(filee));
+            String headerLine = br.readLine();
+            System.out.println("header "+headerLine);
+            String line;
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+                CustomerCopy copy =  csvService.parseCsvLine(headerLine, line, strategy, 0);
+                copies.add(copy);
+            }
+            apiService.saveCustomerCopy(copies);
+            return (ResponseEntity<?>) ResponseEntity.ok(copies);
         }
         catch(Exception e){
             e.printStackTrace();

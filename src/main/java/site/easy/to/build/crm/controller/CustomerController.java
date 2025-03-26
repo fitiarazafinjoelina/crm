@@ -2,6 +2,8 @@ package site.easy.to.build.crm.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -11,13 +13,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import site.easy.to.build.crm.entity.Customer;
-import site.easy.to.build.crm.entity.CustomerLoginInfo;
-import site.easy.to.build.crm.entity.OAuthUser;
-import site.easy.to.build.crm.entity.User;
+import site.easy.to.build.crm.entity.*;
 import site.easy.to.build.crm.google.service.acess.GoogleAccessService;
 import site.easy.to.build.crm.google.service.gmail.GoogleGmailApiService;
+import site.easy.to.build.crm.service.api.ApiService;
 import site.easy.to.build.crm.service.contract.ContractService;
+import site.easy.to.build.crm.service.csv.CsvService;
 import site.easy.to.build.crm.service.customer.CustomerLoginInfoService;
 import site.easy.to.build.crm.service.customer.CustomerService;
 import site.easy.to.build.crm.service.lead.LeadService;
@@ -43,11 +44,13 @@ public class CustomerController {
     private final TicketService ticketService;
     private final ContractService contractService;
     private final LeadService leadService;
+    private final CsvService csvService;
+    private final ApiService apiService;
 
     @Autowired
     public CustomerController(CustomerService customerService, UserService userService, CustomerLoginInfoService customerLoginInfoService,
                               AuthenticationUtils authenticationUtils, GoogleGmailApiService googleGmailApiService, Environment environment,
-                              TicketService ticketService, ContractService contractService, LeadService leadService) {
+                              TicketService ticketService, ContractService contractService, LeadService leadService,CsvService csvService,ApiService apiService) {
         this.customerService = customerService;
         this.userService = userService;
         this.customerLoginInfoService = customerLoginInfoService;
@@ -57,6 +60,8 @@ public class CustomerController {
         this.ticketService = ticketService;
         this.contractService = contractService;
         this.leadService = leadService;
+        this.csvService = csvService;
+        this.apiService = apiService;
     }
 
     @GetMapping("/manager/all-customers")
@@ -82,6 +87,18 @@ public class CustomerController {
         customers = customerService.findByUserId(userId);
         model.addAttribute("customers",customers);
         return "customer/all-customers";
+    }
+    @GetMapping("/copy/{customerId}")
+    public String copyCustomer(@PathVariable("customerId") int customerId) {
+        try {
+            List<CustomerCopy> list = apiService.copyCustomer(customerId);
+            csvService.writeCsv(list,"copy.csv");
+            return "customer/all-customers";
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return "error/500";
+        }
     }
 
     @GetMapping("/{id}")

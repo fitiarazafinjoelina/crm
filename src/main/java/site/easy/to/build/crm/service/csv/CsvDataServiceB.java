@@ -42,7 +42,6 @@ public class CsvDataServiceB<T, R> {
 
 
             for (E entity : temps) {
-                System.out.println("i");
                 try{
                     saveEntity(entity,exceptions,index,fileName);
 

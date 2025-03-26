@@ -130,7 +130,7 @@ public class CsvService {
         return validRecords;
     }
 
-    private <T> T parseCsvLine(String headerLine, String dataLine,
+    public <T> T parseCsvLine(String headerLine, String dataLine,
                                HeaderColumnNameMappingStrategy<T> strategy,
                                int lineNumber) throws Exception {
 
