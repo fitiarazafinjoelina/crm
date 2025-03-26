@@ -102,7 +102,12 @@ public class CsvDataService {
         try {
             List<TicketLeadImport> ticketLeadImports = csvService.readCsvObject(ticketLeadFile.getInputStream(), TicketLeadImport.class,ticketLeadFile.getName());
             for (TicketLeadImport ticketLeadImport : ticketLeadImports) {
-                System.out.println(ticketLeadImport.getStatus());
+               if(ticketLeadImport.getType().equals("lead")){
+                   ticketLeadImport.setStatus("meeting-to-schedule");
+               }
+               else {
+                   ticketLeadImport.setStatus("open");
+               }
             }
             ticketLeadImportService.saveAll(ticketLeadImports, exceptions, ticketLeadFile.getName());
 
